@@ -2,6 +2,7 @@ import express from "express";
 import morgan from "morgan";
 import router from "./routes/index";
 import cors from "cors";
+import { MercadoPagoConfig } from 'mercadopago';
 import * as dotenv from "dotenv"; // see https://github.com/motdotla/dotenv#how-do-i-use-dotenv-with-import
 dotenv.config();
 
@@ -17,15 +18,20 @@ server.use(express.json());
 //enable pre-flight
 // router.options("cors", cors(options));
 
+if (!process.env.MP_ACCESS_TOKEN) {
+  throw new Error('MP_ACCESS_TOKEN is required');
+}
+// Initialize the client object
+const client = new MercadoPagoConfig({ accessToken: process.env.MP_ACCESS_TOKEN });
 
-// SDK de Mercado Pago
-const mercadopago = require("mercadopago");
-// Agrega credenciales
-mercadopago.configure({
-  access_token: process.env.ACCES_TOKEN
-});
-
-
+// Old Implementation Version
+// // SDK de Mercado Pago
+// const mercadopago = require("mercadopago");
+// // Add Credentials
+// console.log("MP TOKEN: " + process.env.MP_ACCESS_TOKEN);
+// mercadopago.configure({
+//   access_token: process.env.MP_ACCESS_TOKEN
+// });
 
 server.use("/", router);
 
