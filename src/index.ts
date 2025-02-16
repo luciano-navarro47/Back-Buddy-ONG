@@ -1,7 +1,7 @@
 import "reflect-metadata";
 import database from "./config/database";
 import server from './app';
-const PORT = 5432;
+const PORT = 3001;
 
 database
   .initialize()
