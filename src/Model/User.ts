@@ -16,7 +16,7 @@ export type Status = "active" | "banned";
 
 @Entity()
 export class User extends BaseEntity {
-	
+
 	@PrimaryGeneratedColumn("uuid")
 	id!: string;
 
