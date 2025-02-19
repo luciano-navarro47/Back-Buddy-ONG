@@ -1,5 +1,5 @@
 import "reflect-metadata";
-import database from "./config/database";
+import database from "./config/data-source";
 import server from './app';
 const PORT = 3001;
 

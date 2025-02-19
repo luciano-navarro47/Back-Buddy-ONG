@@ -12,7 +12,9 @@
 
     "test": "echo \"Error: no test specified\" && exit 1",
 
-    "dev": "nodemon"
+    "dev": "nodemon",
+
+    "seed": "ts-node src/config/seed.ts"
 
   },
 
@@ -53,6 +55,10 @@
   },
 
   "dependencies": {
+
+    "@faker-js/faker": "^9.5.0",
+
+    "@jorgebodega/typeorm-seeding": "^7.1.0",
 
     "@types/bcryptjs": "^2.4.2",
 

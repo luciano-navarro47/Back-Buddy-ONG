@@ -10,15 +10,33 @@ import {
 
 import { User } from "./User";
 
-export type Size = "pequeño" | "mediano" | "grande";
-
-export type Specie = "perro" | "gato";
-
-export type Age = "cachorro" | "joven" | "adulto";
-
-export type Sex = "macho" | "hembra";
-
-export type Status = "perdido" | "encontrado" | "adoptado";
+export enum Size {
+	PEQUEÑO = "pequeño",
+	MEDIANO = "mediano",
+	GRANDE = "grande",
+  }
+  
+  export enum Specie {
+	PERRO = "perro",
+	GATO = "gato",
+  }
+  
+  export enum Age {
+	CACHORRO = "cachorro",
+	JOVEN = "joven",
+	ADULTO = "adulto",
+  }
+  
+  export enum Sex {
+	MACHO = "macho",
+	HEMBRA = "hembra",
+  }
+  
+  export enum Status {
+	PERDIDO = "perdido",
+	ENCONTRADO = "encontrado",
+	ADOPTADO = "adoptado",
+  }
 
 @Entity()
 export class Pet extends BaseEntity {
@@ -28,19 +46,19 @@ export class Pet extends BaseEntity {
 
 	@Column({
 		type: "enum",
-		enum: ["pequeño", "mediano", "grande"],
+		enum: Object.values(Size),
 	})
 	size!: Size;
 
 	@Column({
 		type: "enum",
-		enum: ["perro", "gato"],
+		enum: Object.values(Specie),
 	})
 	species!: Specie;
 
 	@Column({
 		type: "enum",
-		enum: ["cachorro", "joven", "adulto"],
+		enum: Object.values(Age),
 	})
 	age!: Age;
 
@@ -55,13 +73,13 @@ export class Pet extends BaseEntity {
 
 	@Column({
 		type: "enum",
-		enum: ["macho", "hembra"],
+		enum: Object.values(Sex),
 	})
 	sex!: Sex;
 
 	@Column({
 		type: "enum",
-		enum: ["perdido", "encontrado", "adoptado"],
+		enum: Object.values(Status),
 	})
 	status!: Status;
 	@CreateDateColumn()
