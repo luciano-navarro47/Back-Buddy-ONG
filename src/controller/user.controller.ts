@@ -1,12 +1,12 @@
 import { Request, Response } from "express";
-import { User } from "../Model/User";
+import { User, Status } from "../Model/User";
 import { handleHttp, NotFoundError } from "../utils/error.handler";
 import { encrypt } from "../utils/bcrypt.handler";
 import { verified } from "../utils/bcrypt.handler";
 import { transporter } from "../config/mailer";
 
 export const createUser = async (req: Request, res: Response) => {
-	const { name, surname, email, username, phone, role, password } = req.body;
+	const { name, surname, email, username, phone, role, password, status } = req.body;
 	try {
 		const passwordHashed = await encrypt(password);
 
@@ -18,10 +18,9 @@ export const createUser = async (req: Request, res: Response) => {
 		newUser.username = username;
 		newUser.phone = phone;
 		newUser.role = role;
-		newUser.status = "active"; //le seteo el status en active cuando se crea. Lu
+		newUser.status = status;
 
 		await newUser.save();
-		// console.log(newUser);
 
 		res.status(200).send(newUser);
 	} catch (error) {
@@ -86,15 +85,15 @@ export const setStatusUserInDB = async (req: Request, res: Response) => {
 	try {
 		const user = await User.findOneBy({ id: id });
 		if (!user) throw new NotFoundError(`User ${id} is not found`);
-		if (user.status === "active") {
-			await User.update({ id: id }, { status: "banned" });
+		if (user.status === Status.ACTIVE) {
+			await User.update({ id: id }, { status: Status.BANNED });
 			res.status(200).send("User banned.");
 		} else {
-			await User.update({ id: id }, { status: "active" });
+			await User.update({ id: id }, { status: Status.ACTIVE });
 			res.status(200).send("User re-activaded.");
 		}
 	} catch (error) {
-		console.log(error); //manejo este error de momento. Lu
+		console.log(error);
 	}
 };
 

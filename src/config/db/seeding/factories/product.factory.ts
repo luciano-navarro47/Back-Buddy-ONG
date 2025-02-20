@@ -3,28 +3,25 @@ import { Seeder } from "@jorgebodega/typeorm-seeding";
 import { DataSource } from "typeorm/data-source";
 
 import { Category, Product } from "../../../../Model/Product";
-import { getCategoryRandomData } from "../../../../utils/getRandomData";
+import { getProductRandomData } from "../../../../utils/getRandomData";
 
 export default class ProductSeeder extends Seeder {
     async run(dataSource: DataSource): Promise<void> {
         
-        const categories = Object.values(Category);
         const products : Product[] = [];
 
-        for (let i = 0; i < 20; i++) {
-            
-            const randomIndex = Math.floor(Math.random() * categories.length);
-            let randomCategory = categories[randomIndex] as Category;
+        for (let i = 0; i < 10; i++) {
+
             const product = new Product();
-            const { description, image } = await getCategoryRandomData(randomCategory);
+            const { category, image, name, description, price, stock } = await getProductRandomData();
 
             Object.assign(product, {
-                image: image,
-                name: `Producto N°${i+1}`,
-                description: description,
-                price: faker.number.int({min: 500, max: 15000}),
-                stock: faker.number.int({min: 0, max: 100}),
-                category: randomCategory
+                category,
+                image,
+                name,
+                description,
+                price,
+                stock
             });
 
             products.push(product);
