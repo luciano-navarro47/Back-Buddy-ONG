@@ -6,7 +6,7 @@ import { Veterinary } from "../../../../Model/Veterinary";
 
 export default class VeterinarySeeder extends Seeder {
   async run(dataSource: DataSource): Promise<void> {
-    const users: Veterinary[] = [];
+    const veterinaries: Veterinary[] = [];
 
     for (let i = 0; i < 10; i++) {
       const veterinary = new Veterinary();
@@ -22,9 +22,9 @@ export default class VeterinarySeeder extends Seeder {
         email
       });
 
-      users.push(veterinary);
+      veterinaries.push(veterinary);
     }
 
-    await dataSource.createEntityManager().save<Veterinary>(users);
+    await dataSource.createEntityManager().save<Veterinary>(veterinaries);
   }
 }
