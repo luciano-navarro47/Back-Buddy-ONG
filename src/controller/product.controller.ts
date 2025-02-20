@@ -12,10 +12,10 @@ export const getAllProducts = async (req: Request, res: Response) => {
 };
 
 export const createProduct = async (req: Request, res: Response) => {
-	const { name, description, image, price, stock, Category } = req.body;
+	const { name, description, image, price, stock, category } = req.body;
 	try {
 		const newProduct = new Product();
-		newProduct.Category = Category;
+		newProduct.category = category;
 		newProduct.name = name;
 		newProduct.image = image;
 		newProduct.description = description;

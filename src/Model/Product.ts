@@ -7,15 +7,21 @@ import {
 	BaseEntity,
 } from "typeorm";
 
-export type Category = "otros" | "indumentaria" | "tazas" | "alimentos";
+export enum Category {
+	OTROS = "otros",
+	INDUMENTARIA = "indumentaria",
+	TAZAS = "tazas",
+	ALIMENTOS = "alimentos"
+};
+
 
 @Entity()
 export class Product extends BaseEntity {
 	@Column({
 		type: "enum",
-		enum: ["otros", "indumentaria", "tazas", "alimentos"],
+		enum: Object.values(Category),
 	})
-	Category!: Category;
+	category!: Category;
 
 	@PrimaryGeneratedColumn("uuid")
 	id!: string;
