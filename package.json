@@ -10,7 +10,7 @@
 
   "scripts": {
 
-    "test": "jest --watch",
+    "test": "jest --watchAll",
 
     "dev": "nodemon",
 
