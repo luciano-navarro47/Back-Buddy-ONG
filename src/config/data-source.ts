@@ -17,9 +17,9 @@ export default new DataSource({
 	database: isTestEnv ? process.env.TEST_DB_NAME : process.env.DB_NAME, // Usa DB de prueba si está en entorno de test
 	synchronize: isTestEnv, // Solo sincroniza en tests para evitar problemas en producción
 	logging: false,
-	entities: ["src/Model/*.ts"],
-	migrations: ["src/migrations/*.ts"],
-	subscribers: ["src/subscribers/*.ts"],
+	entities: ["dist/Model/*.ts"],
+	// migrations: ["dist/migrations/*.ts"],
+	// subscribers: ["dist/subscribers/*.ts"],
   });
 
 // export default new DataSource({
