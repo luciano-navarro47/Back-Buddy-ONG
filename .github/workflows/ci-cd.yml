@@ -46,7 +46,10 @@ jobs:
           echo "Waiting for Postgres to be ready..."
           sleep 10
 
-      - name: Verificar conexión a PostgreSQL
+      - name: Install PostgreSQL Client
+        run: apt-get update && apt-get install -y postgresql-client
+
+      - name: Verify PostgreSQL connection
         run: |
           pg_isready -h localhost -p 5432 -U ${{ secrets.POSTGRES_USER }}
 
