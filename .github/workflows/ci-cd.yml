@@ -42,7 +42,7 @@ jobs:
         run: npx tsc
       
       - name: Connect to PostgreSQL with TypeORM
-        run: node dist/index.js
+        run: node dist/src/index.js
 
         env:
           POSTGRES_HOST: localhost
