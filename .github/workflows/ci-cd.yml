@@ -55,10 +55,10 @@ jobs:
       - name: Install PostgreSQL Client
         run: apt-get update && apt-get install -y postgresql-client
 
-      - name: Verify connection to PostgreSQL
-        run: |
-          echo "Trying to connect to PostgreSQL..."
-          PGPASSWORD=${{secrets.POSTGRES_PASSWORD}} psql -h postgres -U ${{secrets.POSTGRES_USER}} -d ${{secrets.POSTGRES_DB}} -c "SELECT 1;"
+      # - name: Verify connection to PostgreSQL
+      #   run: |
+      #     echo "Trying to connect to PostgreSQL..."
+      #     PGPASSWORD=${{secrets.POSTGRES_PASSWORD}} psql -h postgres -U ${{secrets.POSTGRES_USER}} -d ${{secrets.POSTGRES_DB}} -c "SELECT 1;"
 
       - name: Connect to PostgreSQL with TypeORM
         run: node dist/src/index.js
