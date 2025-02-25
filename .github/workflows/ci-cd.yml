@@ -68,8 +68,8 @@ jobs:
           echo "Trying to connect to PostgreSQL..."
           PGPASSWORD=${{secrets.DB_PASSWORD}} psql -h postgres -U ${{secrets.DB_USER}} -d ${{secrets.DB_NAME}} -c "SELECT 1;"
       
-      - name: Show PostgreSQL logs
-        run: docker logs postgres
+      # - name: Show PostgreSQL logs
+      #   run: docker logs postgres
 
       - name: Connect to PostgreSQL with TypeORM
         run: node dist/src/index.js
