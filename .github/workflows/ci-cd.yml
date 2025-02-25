@@ -21,10 +21,10 @@ jobs:
           POSTGRES_PASSWORD: ${{secrets.POSTGRES_PASSWORD}}
           POSTGRES_DB: ${{secrets.POSTGRES_DB}} 
         options: >-
-          --health-cmd pg_isready
+          --health-cmd "pg_isready -U ${{secrets.POSTGRES_USER}} -d ${{secrets.POSTGRES_DB}}"
           --health-interval 10s
           --health-timeout 5s
-          --health-retries 1
+          --health-retries 5
         ports:
           - 5432:5432
 
@@ -51,11 +51,16 @@ jobs:
             sleep 5
           done
       
+      - name: Verify connection to PostgreSQL
+        run: |
+          echo "Trying to connect to PostgreSQL..."
+          PGPASSWORD=${{secrets.POSTGRES_PASSWORD}} psql -h postgres -U ${{secrets.POSTGRES_USER}} -d ${{secrets.POSTGRES_DB}} -c "SELECT 1;"
+
       - name: Connect to PostgreSQL with TypeORM
         run: node dist/src/index.js
 
         env:
-          POSTGRES_HOST: postgres
+          POSTGRES_HOST: 127.0.0.1
           POSTGRES_PORT: 5432
           POSTGRES_USER: ${{secrets.POSTGRES_USER}}
           POSTGRES_PASSWORD: ${{secrets.POSTGRES_PASSWORD}}
