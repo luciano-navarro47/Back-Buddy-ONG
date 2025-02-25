@@ -32,37 +32,21 @@ var __importStar = (this && this.__importStar) || (function () {
         return result;
     };
 })();
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-const express_1 = __importDefault(require("express"));
-const morgan_1 = __importDefault(require("morgan"));
-const index_1 = __importDefault(require("./routes/index"));
-const cors_1 = __importDefault(require("cors"));
-const mercadopago_1 = require("mercadopago");
-const dotenv = __importStar(require("dotenv")); // see https://github.com/motdotla/dotenv#how-do-i-use-dotenv-with-import
+const typeorm_1 = require("typeorm");
+const dotenv = __importStar(require("dotenv"));
 dotenv.config();
-const server = (0, express_1.default)();
-//options for cors midddleware
-server.use((0, cors_1.default)());
-server.use((0, morgan_1.default)("dev"));
-server.use(express_1.default.json());
-// server.use(cors(options));
-//enable pre-flight
-// router.options("cors", cors(options));
-if (!process.env.MP_ACCESS_TOKEN) {
-    throw new Error('MP_ACCESS_TOKEN is required');
-}
-// Initialize the client object
-const client = new mercadopago_1.MercadoPagoConfig({ accessToken: process.env.MP_ACCESS_TOKEN });
-// Old Implementation Version
-// // SDK de Mercado Pago
-// const mercadopago = require("mercadopago");
-// // Add Credentials
-// console.log("MP TOKEN: " + process.env.MP_ACCESS_TOKEN);
-// mercadopago.configure({
-//   access_token: process.env.MP_ACCESS_TOKEN
-// });
-server.use("/", index_1.default);
-exports.default = server;
+const isTestEnv = process.env.NODE_ENV === 'test';
+exports.default = new typeorm_1.DataSource({
+    type: "postgres",
+    host: process.env.DB_HOST || 'postgres',
+    port: Number(process.env.DB_PORT),
+    username: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: isTestEnv ? process.env.TEST_DB_NAME : process.env.DB_NAME,
+    synchronize: isTestEnv,
+    logging: false,
+    entities: ["dist/Model/*.ts"],
+    migrations: ["dist/migrations/*.ts"],
+    subscribers: ["dist/subscribers/*.ts"],
+});

@@ -13,7 +13,7 @@ export default new DataSource({
 	database: isTestEnv ? process.env.TEST_DB_NAME : process.env.DB_NAME,
 	synchronize: isTestEnv,
 	logging: false,
-	entities: ["src/Model/*.ts"],
-	migrations: ["src/migrations/*.ts"],
-	subscribers: ["src/subscribers/*.ts"],
+	entities: ["dist/Model/*.ts"],
+	migrations: ["dist/migrations/*.ts"],
+	subscribers: ["dist/subscribers/*.ts"],
   });
