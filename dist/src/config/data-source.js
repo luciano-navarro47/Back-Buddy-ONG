@@ -34,11 +34,7 @@ var __importStar = (this && this.__importStar) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 const typeorm_1 = require("typeorm");
-// import { Pet } from "../Model/Pet";
-// import { User } from "../Model/User";
-// import { Product } from "../Model/Product";
-// import { Veterinary } from "../Model/Veterinary";
-const dotenv = __importStar(require("dotenv")); // see https://github.com/motdotla/dotenv#how-do-i-use-dotenv-with-import
+const dotenv = __importStar(require("dotenv"));
 dotenv.config();
 const isTestEnv = process.env.NODE_ENV === 'test';
 exports.default = new typeorm_1.DataSource({
@@ -47,18 +43,10 @@ exports.default = new typeorm_1.DataSource({
     port: Number(process.env.DB_PORT),
     username: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
-    database: isTestEnv ? process.env.TEST_DB_NAME : process.env.DB_NAME, // Usa DB de prueba si está en entorno de test
-    synchronize: isTestEnv, // Solo sincroniza en tests para evitar problemas en producción
+    database: isTestEnv ? process.env.TEST_DB_NAME : process.env.DB_NAME,
+    synchronize: isTestEnv,
     logging: false,
-    entities: ["src/Model/*.ts"],
-    migrations: ["src/migrations/*.ts"],
-    subscribers: ["src/subscribers/*.ts"],
+    entities: ["dist/Model/*.ts"],
+    migrations: ["dist/migrations/*.ts"],
+    subscribers: ["dist/subscribers/*.ts"],
 });
-// export default new DataSource({
-// 	name: "default",
-// 	type: "postgres",
-// 	url: process.env.DB_DEPLOY,
-// 	entities: [Pet, User, Product, Veterinary],
-// 	synchronize: true,
-// 	logging: false,
-// });
