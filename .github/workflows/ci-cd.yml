@@ -20,6 +20,8 @@ jobs:
           POSTGRES_USER: ${{secrets.DB_USER}}
           POSTGRES_DB: ${{secrets.DB_NAME}}
           POSTGRES_HOST_AUTH_METHOD: trust
+          # PGUSER:
+          # PGDATABASE:
 
         options: >-
           --health-cmd pg_isready
@@ -44,21 +46,13 @@ jobs:
       - name: Compile TypeScript
         run: npx tsc
 
-      - name: Print environment variables
-        run: |
-          echo "DB_HOST: ${{ secrets.DB_HOST }}"
-          echo "DB_PORT: ${{ secrets.DB_PORT }}"
-          echo "DB_USER: ${{ secrets.DB_USER }}"
-          echo "DB_PASSWORD: ${{ secrets.DB_PASSWORD }}"
-          echo "DB_NAME: ${{ secrets.DB_NAME }}"
-
-      - name: "Wait for PostgreSQL to be ready"
-        run: |
-          for i in {1..10}; do
-            pg_isready -h postgres -U ${{ secrets.DB_USER }} -d ${{ secrets.DB_NAME }} && break
-            echo "Waiting for PostgreSQL to be ready..."
-            sleep 5
-          done
+      # - name: "Wait for PostgreSQL to be ready"
+      #   run: |
+      #     for i in {1..10}; do
+      #       pg_isready -h postgres -U ${{ secrets.DB_USER }} -d ${{ secrets.DB_NAME }} && break
+      #       echo "Waiting for PostgreSQL to be ready..."
+      #       sleep 5
+      #     done
 
       - name: Install PostgreSQL Client
         run: apt-get update && apt-get install -y postgresql-client
@@ -66,7 +60,7 @@ jobs:
       - name: Verify connection to PostgreSQL
         run: |
           echo "Trying to connect to PostgreSQL..."
-          PGPASSWORD=${{secrets.DB_PASSWORD}} psql -h postgres -U ${{secrets.DB_USER}} -d ${{secrets.DB_NAME}} -c "SELECT 1;"
+          psql -h postgres -U ${{secrets.DB_USER}} -d ${{secrets.DB_NAME}} -c "SELECT 1;"
       
       # - name: Show PostgreSQL logs
       #   run: docker logs postgres
@@ -75,12 +69,12 @@ jobs:
         run: node dist/src/index.js
 
         env:
+          NODE_ENV: ${{secrets.NODE_ENV}}
           DB_HOST: ${{secrets.DB_HOST}}
           DB_PORT: ${{secrets.DB_PORT}}
-          NODE_ENV: ${{secrets.NODE_ENV}}
-          POSTGRES_USER: ${{secrets.DB_USER}}
-          POSTGRES_PASSWORD: ${{secrets.DB_PASSWORD}}
-          POSTGRES_DB: ${{secrets.DB_NAME}}
+          DB_USER: ${{secrets.DB_USER}}
+          DB_PASSWORD: ${{secrets.DB_PASSWORD}}
+          DB_NAME: ${{secrets.DB_NAME}}
           TEST_DB_NAME: ${{secrets.TEST_DB_NAME}}
           MP_ACCESS_TOKEN: ${{secrets.MP_ACCESS_TOKEN}}
           UNSPLASH_ACCESS_KEY: ${{secrets.UNSPLASH_ACCESS_KEY}}
