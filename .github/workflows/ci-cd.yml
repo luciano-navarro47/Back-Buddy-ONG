@@ -44,6 +44,14 @@ jobs:
       - name: Compile TypeScript
         run: npx tsc
 
+      - name: Print environment variables
+        run: |
+          echo "DB_HOST: ${{ secrets.DB_HOST }}"
+          echo "DB_PORT: ${{ secrets.DB_PORT }}"
+          echo "DB_USER: ${{ secrets.DB_USER }}"
+          echo "DB_PASSWORD: ${{ secrets.DB_PASSWORD }}"
+          echo "DB_NAME: ${{ secrets.DB_NAME }}"
+
       - name: "Wait for PostgreSQL to be ready"
         run: |
           for i in {1..10}; do
@@ -59,13 +67,16 @@ jobs:
         run: |
           echo "Trying to connect to PostgreSQL..."
           PGPASSWORD=${{secrets.DB_PASSWORD}} psql -h postgres -U ${{secrets.DB_USER}} -d ${{secrets.DB_NAME}} -c "SELECT 1;"
+      
+      - name: Show PostgreSQL logs
+        run: docker logs postgres
 
       - name: Connect to PostgreSQL with TypeORM
         run: node dist/src/index.js
 
         env:
-          DB_HOST: 127.0.0.1
-          DB_PORT: 5432
+          DB_HOST: ${{secrets.DB_HOST}}
+          DB_PORT: ${{secrets.DB_PORT}}
           NODE_ENV: ${{secrets.NODE_ENV}}
           POSTGRES_USER: ${{secrets.DB_USER}}
           POSTGRES_PASSWORD: ${{secrets.DB_PASSWORD}}
