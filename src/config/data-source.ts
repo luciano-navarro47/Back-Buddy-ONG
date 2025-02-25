@@ -10,8 +10,8 @@ export default new DataSource({
 	port: Number(process.env.DB_PORT),
 	username: process.env.DB_USER,
 	password: process.env.DB_PASSWORD,
-	database: isTestEnv ? process.env.TEST_DB_NAME : process.env.DB_NAME, // Usa DB de prueba si está en entorno de test
-	synchronize: isTestEnv, // Solo sincroniza en tests para evitar problemas en producción
+	database: isTestEnv ? process.env.TEST_DB_NAME : process.env.DB_NAME,
+	synchronize: isTestEnv,
 	logging: false,
 	entities: ["dist/Model/*.ts"],
 	migrations: ["dist/migrations/*.ts"],
