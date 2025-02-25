@@ -17,7 +17,9 @@ jobs:
       postgres:
         image: postgres
         env:
+          POSTGRES_USER: ${{secrets.POSTGRES_USER}}
           POSTGRES_PASSWORD: ${{secrets.POSTGRES_PASSWORD}}
+          POSTGRES_DB: ${{secrets.POSTGRES_DB}} 
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
@@ -40,20 +42,25 @@ jobs:
       
       - name: Compile TypeScript
         run: npx tsc
+
+      - name: "Wait for PostgreSQL to be ready"
+        run: |
+          for i in {1..10}; do
+            pg_isready -h postgres -U ${{ secrets.POSTGRES_USER }} -d ${{ secrets.POSTGRES_DB }} && break
+            echo "Waiting for PostgreSQL to be ready..."
+            sleep 5
+          done
       
       - name: Connect to PostgreSQL with TypeORM
         run: node dist/src/index.js
 
         env:
-          POSTGRES_HOST: localhost
+          POSTGRES_HOST: postgres
           POSTGRES_PORT: 5432
+          POSTGRES_USER: ${{secrets.POSTGRES_USER}}
+          POSTGRES_PASSWORD: ${{secrets.POSTGRES_PASSWORD}}
+          POSTGRES_DB: ${{secrets.POSTGRES_DB}} 
           MP_ACCESS_TOKEN: ${{secrets.MP_ACCESS_TOKEN}}
-          # POSTGRES_USER: ${{secrets.POSTGRES_USER}}
-          # POSTGRES_DB: ${{secrets.POSTGRES_DB}} 
-
-      # - name: Verify PostgreSQL connection
-      #   run: |
-      #     pg_isready -h localhost -p 5432 -U ${{ secrets.POSTGRES_USER }}
 
       - run: npm run build --if-present
       - run: npm test
