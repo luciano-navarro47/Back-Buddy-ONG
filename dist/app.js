@@ -41,7 +41,7 @@ const morgan_1 = __importDefault(require("morgan"));
 const index_1 = __importDefault(require("./routes/index"));
 const cors_1 = __importDefault(require("cors"));
 const mercadopago_1 = require("mercadopago");
-const dotenv = __importStar(require("dotenv")); // see https://github.com/motdotla/dotenv#how-do-i-use-dotenv-with-import
+const dotenv = __importStar(require("dotenv"));
 dotenv.config();
 const server = (0, express_1.default)();
 //options for cors midddleware
