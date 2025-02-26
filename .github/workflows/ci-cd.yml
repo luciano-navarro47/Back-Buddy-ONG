@@ -46,13 +46,13 @@ jobs:
       - name: Compile TypeScript
         run: npx tsc
 
-      # - name: "Wait for PostgreSQL to be ready"
-      #   run: |
-      #     for i in {1..10}; do
-      #       pg_isready -h postgres -U ${{ secrets.DB_USER }} -d ${{ secrets.TEST_DB_NAME }} && break
-      #       echo "Waiting for PostgreSQL to be ready..."
-      #       sleep 5
-      #     done
+      - name: "Wait for PostgreSQL to be ready"
+        run: |
+          for i in {1..10}; do
+            pg_isready -h postgres -U ${{ secrets.DB_USER }} -d ${{ secrets.TEST_DB_NAME }} && break
+            echo "Waiting for PostgreSQL to be ready..."
+            sleep 5
+          done
 
       - name: Install PostgreSQL Client
         run: apt-get update && apt-get install -y postgresql-client
