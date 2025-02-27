@@ -1,9 +1,11 @@
-import dataSource from "./src/config/data-source";
+import AppDataSource from "./src/config/data-source";
 
 beforeAll(async () => {
-  await dataSource.initialize();
+  await AppDataSource.initialize();
 });
 
 afterAll(async () => {
-  await dataSource.destroy();
+  if (AppDataSource.isInitialized) {
+    await AppDataSource.destroy();
+  }
 });

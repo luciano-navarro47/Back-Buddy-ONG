@@ -1,17 +1,17 @@
 import "reflect-metadata";
-import database from "./config/data-source";
+import AppDataSource from "./config/data-source";
 import server from "./app";
 
 const PORT = 3001;
 
 const startServer = async () => {
   try {
-    await database.initialize();
+    await AppDataSource.initialize();
     console.log("Database connected");
 
     if (process.env.CI) {
       console.log("Running in CI mode, skipping server start.");
-      await database.destroy();
+      await AppDataSource.destroy();
       process.exit(0);
     }
 
@@ -21,7 +21,7 @@ const startServer = async () => {
 
     process.on("SIGTERM", async () => {
       console.log("🛑 SIGTERM received, closing...");
-      await database.destroy();
+      await AppDataSource.destroy();
       app.close(() => {
         console.log("🛑 Server closed");
         process.exit(0);
