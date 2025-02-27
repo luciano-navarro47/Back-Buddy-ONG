@@ -60,7 +60,7 @@ jobs:
       - name: Verify connection to PostgreSQL
         run: |
           echo "Trying to connect to PostgreSQL..."
-          PGPASSWORD=${{secrets.DB_PASSWORD}} psql -h postgres -U ${{secrets.DB_USER}} -d ${{secrets.TEST_DB_NAME}} -c "SELECT 1;"
+          psql -h postgres -U ${{secrets.DB_USER}} -d ${{secrets.TEST_DB_NAME}} -c "SELECT 1;"
       
       - name: Wait for PostgreSQL to be ready
         run: sleep 5
@@ -69,7 +69,7 @@ jobs:
         run: node dist/index.js
 
         env:
-          CI: true
+          CI: "true"
           NODE_ENV: ${{secrets.NODE_ENV}}
           DB_HOST: postgres
           DB_PORT: 5432
@@ -80,5 +80,15 @@ jobs:
           MP_ACCESS_TOKEN: ${{secrets.MP_ACCESS_TOKEN}}
           UNSPLASH_ACCESS_KEY: ${{secrets.UNSPLASH_ACCESS_KEY}}
 
-      - run: npm run build --if-present
       - run: npm test
+        env:
+          CI: "true"
+          NODE_ENV: ${{secrets.NODE_ENV}}
+          DB_HOST: postgres
+          DB_PORT: 5432
+          DB_USER: ${{secrets.DB_USER}}
+          DB_PASSWORD: ${{secrets.DB_PASSWORD}}
+          DB_NAME: ${{secrets.DB_NAME}}
+          TEST_DB_NAME: ${{secrets.TEST_DB_NAME}}
+          MP_ACCESS_TOKEN: ${{secrets.MP_ACCESS_TOKEN}}
+          UNSPLASH_ACCESS_KEY: ${{secrets.UNSPLASH_ACCESS_KEY}}

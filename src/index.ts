@@ -9,7 +9,7 @@ const startServer = async () => {
     await AppDataSource.initialize();
     console.log("Database connected");
 
-    if (process.env.CI) {
+    if (process.env.CI === "true") {
       console.log("Running in CI mode, skipping server start.");
       await AppDataSource.destroy();
       process.exit(0);
