@@ -19,7 +19,7 @@ jobs:
         env:
           POSTGRES_USER: ${{secrets.DB_USER}}
           POSTGRES_DB: ${{secrets.TEST_DB_NAME}}
-          # POSTGRES_PASSWORD: ${{secrets.DB_PASSWORD}}
+          POSTGRES_PASSWORD: ${{secrets.DB_PASSWORD}}
           POSTGRES_HOST_AUTH_METHOD: trust
 
 
@@ -61,6 +61,14 @@ jobs:
         run: |
           echo "Trying to connect to PostgreSQL..."
           psql -h postgres -U ${{secrets.DB_USER}} -d ${{secrets.TEST_DB_NAME}} -c "SELECT 1;"
+      
+      - name: Verify PostgreSQL readiness
+        run: |
+          until pg_isready -h postgres -U ${{ secrets.DB_USER }} -d ${{ secrets.TEST_DB_NAME }}; do
+            echo "Waiting for PostgreSQL..."
+            sleep 2
+          done
+          echo "PostgreSQL is ready!"  
       
       - name: Wait for PostgreSQL to be ready
         run: sleep 5
