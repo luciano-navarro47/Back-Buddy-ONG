@@ -17,8 +17,8 @@ const AppDataSource = new DataSource({
 	database: isTestEnv ? process.env.TEST_DB_NAME : process.env.DB_NAME,
 	synchronize: process.env.NODE_ENV !== 'production',
 	logging: process.env.NODE_ENV !== 'production',
-	entities: [Product, Pet, User, Veterinary],
-	// entities: isTestEnv ? ["dist/Model/*.ts"] : [Product, Pet, User, Veterinary],
+	// entities: [Product, Pet, User, Veterinary],
+	entities: isTestEnv ? ["dist/Model/*.ts"] : [Product, Pet, User, Veterinary],
 	migrations: isTestEnv ? ["dist/migrations/*.ts"] : ["src/migrations/*.ts"],
 	subscribers: isTestEnv ? ["dist/subscribers/*.ts"] : ["src/subscribers/*.ts"],
   });
