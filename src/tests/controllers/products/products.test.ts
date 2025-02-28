@@ -11,11 +11,11 @@ import { Request, Response } from "express";
 describe("Get All Products", () => {
   it("should return all available products", async () => {
 
-    // const mockProducts = [1, 2].map(id => {
-    //   const product = new Product();
-    //   Object.assign(product, { id, name: "Test Product" });
-    //   return product;
-    // });
+    const mockProducts = [1, 2].map(id => {
+      const product = new Product();
+      Object.assign(product, { id, name: "Test Product" });
+      return product;
+    });
 
     const mockRequest = {} as Request;
     const mockResponse = {
@@ -23,7 +23,7 @@ describe("Get All Products", () => {
       send: jest.fn(),
     } as unknown as Response;
     
-    // jest.spyOn(Product, "find").mockResolvedValue(mockProducts);
+    jest.spyOn(Product, "find").mockResolvedValue(mockProducts);
 
     await getAllProducts(mockRequest, mockResponse);
 
