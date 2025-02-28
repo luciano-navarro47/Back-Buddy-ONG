@@ -1,15 +1,36 @@
 import "reflect-metadata";
-import database from "./config/data-source";
-import server from './app';
+import AppDataSource from "./config/data-source";
+import server from "./app";
+
 const PORT = 3001;
 
-database
-  .initialize()
-  .then(() => {
-    console.log("DB connect");
-  })
-  .catch(console.error);
+const startServer = async () => {
+  try {
+    await AppDataSource.initialize();
+    console.log("Database connected");
 
-server.listen(PORT, () => {
-  console.log("Running on port " + PORT);
-});
+    if (process.env.CI === "true") {
+      console.log("Running in CI mode, skipping server start.");
+      await AppDataSource.destroy();
+      process.exit(0);
+    }
+
+    const app = server.listen(PORT, () => {
+      console.log(`🚀 Server running on port ${PORT}`);
+    });
+
+    process.on("SIGTERM", async () => {
+      console.log("🛑 SIGTERM received, closing...");
+      await AppDataSource.destroy();
+      app.close(() => {
+        console.log("🛑 Server closed");
+        process.exit(0);
+      });
+    });
+  } catch (error) {
+    console.error("❌ Error connecting to DB:", error);
+    process.exit(1);
+  }
+};
+
+startServer();

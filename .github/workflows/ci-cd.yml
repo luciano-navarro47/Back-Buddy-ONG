@@ -1,0 +1,94 @@
+name: CI/CD for Testing
+
+on:
+  pull_request:
+    branches:
+      - dev
+  push:
+    branches:
+      - dev
+
+jobs:
+  test-container-job:
+    runs-on: ubuntu-latest
+    container: node:22
+
+    services:
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_USER: ${{secrets.DB_USER}}
+          POSTGRES_DB: ${{secrets.TEST_DB_NAME}}
+          # POSTGRES_PASSWORD: ${{secrets.DB_PASSWORD}}
+          POSTGRES_HOST_AUTH_METHOD: trust
+
+
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22.11.0"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Compile TypeScript
+        run: npx tsc
+
+      - name: "Wait for PostgreSQL to be ready"
+        run: |
+          for i in {1..10}; do
+            pg_isready -h postgres -U ${{ secrets.DB_USER }} -d ${{ secrets.TEST_DB_NAME }} && break
+            echo "Waiting for PostgreSQL to be ready..."
+            sleep 5
+          done
+
+      - name: Install PostgreSQL Client
+        run: apt-get update && apt-get install -y postgresql-client
+
+      - name: Verify connection to PostgreSQL
+        run: |
+          echo "Trying to connect to PostgreSQL..."
+          psql -h postgres -U ${{secrets.DB_USER}} -d ${{secrets.TEST_DB_NAME}} -c "SELECT 1;"
+      
+      - name: Wait for PostgreSQL to be ready
+        run: sleep 5
+
+      - name: Test database connection with TypeORM
+        run: node dist/index.js
+
+        env:
+          CI: "true"
+          NODE_ENV: ${{secrets.NODE_ENV}}
+          DB_HOST: postgres
+          DB_PORT: 5432
+          DB_USER: ${{secrets.DB_USER}}
+          DB_PASSWORD: ${{secrets.DB_PASSWORD}}
+          DB_NAME: ${{secrets.DB_NAME}}
+          TEST_DB_NAME: ${{secrets.TEST_DB_NAME}}
+          MP_ACCESS_TOKEN: ${{secrets.MP_ACCESS_TOKEN}}
+          UNSPLASH_ACCESS_KEY: ${{secrets.UNSPLASH_ACCESS_KEY}}
+
+      - run: npm test
+        env:
+          CI: "true"
+          NODE_ENV: ${{secrets.NODE_ENV}}
+          DB_HOST: postgres
+          DB_PORT: 5432
+          DB_USER: ${{secrets.DB_USER}}
+          DB_PASSWORD: ${{secrets.DB_PASSWORD}}
+          DB_NAME: ${{secrets.DB_NAME}}
+          TEST_DB_NAME: ${{secrets.TEST_DB_NAME}}
+          MP_ACCESS_TOKEN: ${{secrets.MP_ACCESS_TOKEN}}
+          UNSPLASH_ACCESS_KEY: ${{secrets.UNSPLASH_ACCESS_KEY}}
