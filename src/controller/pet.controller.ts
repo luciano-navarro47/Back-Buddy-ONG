@@ -1,14 +1,14 @@
 import { Request, Response } from "express";
 import { Pet } from "../Model/Pet";
 import { User } from "../Model/User";
-import { NotFoundError, handleHttp } from "../utils/error.handler";
+import { NotFoundError, handleHttpError } from "../utils/error.handler";
 
 export const getAllPets = async (req: Request, res: Response) => {
   try {
     const pets = await Pet.find();
     res.status(200).send(pets);
   } catch (error) {
-    handleHttp(res, "ERROR_GET_ALL_PETS");
+    handleHttpError(res, "ERROR_GET_ALL_PETS");
   }
 };
 
@@ -19,7 +19,7 @@ export const getPetId = async (req: Request, res: Response) => {
     if (!pet) throw new NotFoundError(`No pet found with ID: ${id}`);
     else res.status(200).send(pet);
   } catch (error) {
-    handleHttp(res, "ERROR_GET_PET");
+    handleHttpError(res, "ERROR_GET_PET");
   }
 };
 
@@ -46,7 +46,7 @@ export const createPet = async (req: Request, res: Response) => {
     await newPet.save();
     return res.status(200).send(newPet);
   } catch (error) {
-    if (error instanceof Error) handleHttp(res, "ERROR_CREATE_PET");
+    if (error instanceof Error) handleHttpError(res, "ERROR_CREATE_PET");
   }
 };
 
@@ -60,7 +60,7 @@ export const updatePet = async (req: Request, res: Response) => {
     await Pet.update({ id: id }, req.body);
     return res.sendStatus(204);
   } catch (error) {
-    handleHttp(res, "ERROR_UPDATE_PET");
+    handleHttpError(res, "ERROR_UPDATE_PET");
   }
 };
 
@@ -72,7 +72,7 @@ export const deletePet = async (req: Request, res: Response) => {
     return res.send(`User deleted`);
   } catch (error) {
     if (error instanceof Error) {
-      handleHttp(res, "ERROR_DELETE_PET");
+      handleHttpError(res, "ERROR_DELETE_PET");
     }
   }
 };

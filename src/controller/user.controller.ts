@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { User, Status } from "../Model/User";
-import { handleHttp, NotFoundError } from "../utils/error.handler";
+import { handleHttpError, NotFoundError } from "../utils/error.handler";
 import { encrypt } from "../utils/bcrypt.handler";
 import { verified } from "../utils/bcrypt.handler";
 import { transporter } from "../config/mailer";
@@ -24,7 +24,7 @@ export const createUser = async (req: Request, res: Response) => {
 
 		res.status(200).send(newUser);
 	} catch (error) {
-		handleHttp(res, "ERROR_CREATE_USER");
+		handleHttpError(res, "ERROR_CREATE_USER");
 	}
 
 	//SEND EMAIL DE BIENVENIDA
@@ -48,7 +48,7 @@ export const getAllUsers = async (req: Request, res: Response) => {
 		const users = await User.find();
 		res.status(200).send(users);
 	} catch (error) {
-		handleHttp(res, "ERROR_GET_USERS");
+		handleHttpError(res, "ERROR_GET_USERS");
 	}
 };
 
@@ -63,7 +63,7 @@ export const getUserId = async (req: Request, res: Response) => {
 		if (!user) throw new NotFoundError(`User ${id} is not found`);
 		else res.status(200).send(user);
 	} catch (error) {
-		handleHttp(res, "ERROR_GET_USER");
+		handleHttpError(res, "ERROR_GET_USER");
 	}
 };
 
@@ -76,7 +76,7 @@ export const updateUser = async (req: Request, res: Response) => {
 		await User.update({ id: id }, req.body);
 		res.status(200).send("User Updated");
 	} catch (error) {
-		handleHttp(res, "ERROR_UPDATE_USERS");
+		handleHttpError(res, "ERROR_UPDATE_USERS");
 	}
 };
 
@@ -136,6 +136,6 @@ export const deleteUser = async (req: Request, res: Response) => {
 			throw new NotFoundError(`User ${id} is not found`);
 		res.send(`User deleted`);
 	} catch (error) {
-		handleHttp(res, "ERROR_DELETED_USER");
+		handleHttpError(res, "ERROR_DELETED_USER");
 	}
 };

@@ -1,9 +1,12 @@
 import { DataSource } from "typeorm";
 import * as dotenv from "dotenv";
+import { Product } from "../Model/Product";
+import { User } from "../Model/User";
+import { Pet } from "../Model/Pet";
+import { Veterinary } from "../Model/Veterinary";
 dotenv.config();
 
 const isTestEnv = process.env.NODE_ENV === 'test';
-
 
 const AppDataSource = new DataSource({
 	type: "postgres",
@@ -13,10 +16,9 @@ const AppDataSource = new DataSource({
 	password: process.env.DB_PASSWORD,
 	database: isTestEnv ? process.env.TEST_DB_NAME : process.env.DB_NAME,
 	synchronize: process.env.NODE_ENV !== 'production',
-	logging: process.env.NODE_ENV !== 'production',
-	entities: isTestEnv ? ["dist/Model/*.ts"] : ["src/Model/*.ts"],
-	migrations: isTestEnv ? ["dist/migrations/*.ts"] : ["src/migrations/*.ts"],
-	subscribers: isTestEnv ? ["dist/subscribers/*.ts"] : ["src/subscribers/*.ts"],
+	entities: [Product, User, Pet, Veterinary],
+	migrations: ["dist/migrations/*.js"],
+	subscribers: isTestEnv ? ["dist/subscribers/*.js"] : ["src/subscribers/*.ts"],
   });
 
 export default AppDataSource;

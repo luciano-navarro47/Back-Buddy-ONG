@@ -9,16 +9,19 @@ beforeAll(async () => {
       username: process.env.DB_USER,
       password: process.env.DB_PASSWORD,
       database: process.env.TEST_DB_NAME,
+      entities: ["dist/Model/*.js"]
     });
-
     await AppDataSource.initialize();
-    console.log("Test database connected!");
+    console.log("Database connected in CI!");
+  } else {
+    await AppDataSource.initialize();
+    console.log("Database connected!");
   }
 });
 
 afterAll(async () => {
   if (AppDataSource.isInitialized) {
     await AppDataSource.destroy();
-    console.log("Test database connection closed!");
+    console.log("Database connection closed!");
   }
 });
