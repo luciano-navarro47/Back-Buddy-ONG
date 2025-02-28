@@ -9,12 +9,15 @@ import AppDataSource from "../config/data-source";
 
 export const getAllProducts = async (req: Request, res: Response) => {
   try {
-    const products = await Product.find();
+    const productsRepository = await AppDataSource.getRepository(Product);
+    const products = await productsRepository.find();
+    // console.log("PRODUCTSSSSSS: ", products);
     if (!products || products.length === 0) {
       return handleHttpError(res, "Products not found", 404);
     }
     return res.status(200).send(products);
   } catch (error) {
+    console.log("ERRORRRRR: ", error);
     return handleHttpError(res, "ERROR_GET_PRODUCTS", 500);
   }
 };

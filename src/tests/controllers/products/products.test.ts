@@ -1,3 +1,4 @@
+import { Repository } from "typeorm";
 import { Product } from "../../../Model/Product";
 import AppDataSource from "../../../config/data-source";
 import {
@@ -9,18 +10,25 @@ import { Request, Response } from "express";
 
 describe("Get All Products", () => {
   it("should return all available products", async () => {
+
+    // const mockProducts = [1, 2].map(id => {
+    //   const product = new Product();
+    //   Object.assign(product, { id, name: "Test Product" });
+    //   return product;
+    // });
+
     const mockRequest = {} as Request;
     const mockResponse = {
       status: jest.fn().mockReturnThis(),
       send: jest.fn(),
     } as unknown as Response;
+    
+    // jest.spyOn(Product, "find").mockResolvedValue(mockProducts);
 
     await getAllProducts(mockRequest, mockResponse);
 
-    expect(mockResponse.status).toHaveBeenCalled();
-
     const allProducts = (mockResponse.send as jest.Mock).mock.calls[0][0];
-
+    // console.log("PRODUCCCCCCCCCSTS ",allProducts)
     expect(mockResponse.status).toHaveBeenCalledWith(200);
     expect(allProducts.length).toBeGreaterThan(0);
   });
@@ -32,8 +40,13 @@ describe("Get All Products", () => {
       send: jest.fn(),
     } as unknown as Response;
 
-    // We simulate that Product.find() returns an empty array
-    jest.spyOn(Product, "find").mockResolvedValueOnce([]);
+    // We simulate that mocked repository returns an empty array
+    const mockRepository = { 
+      find: jest.fn().mockResolvedValue([])
+    } as unknown as Repository<Product>
+
+
+    jest.spyOn(AppDataSource, "getRepository").mockReturnValue(mockRepository);
 
     await getAllProducts(mockRequest, mockResponse);
 
