@@ -1,8 +1,8 @@
 import { DataSource } from "typeorm";
 import * as dotenv from "dotenv";
 import { Product } from "../Model/Product";
-import { Pet } from "../Model/Pet";
 import { User } from "../Model/User";
+import { Pet } from "../Model/Pet";
 import { Veterinary } from "../Model/Veterinary";
 dotenv.config();
 
@@ -16,7 +16,7 @@ const AppDataSource = new DataSource({
 	password: process.env.DB_PASSWORD,
 	database: isTestEnv ? process.env.TEST_DB_NAME : process.env.DB_NAME,
 	synchronize: process.env.NODE_ENV !== 'production',
-	entities: isTestEnv ? ["dist/Model.*js"] : ["src/Model/*.ts"],
+	entities: [Product, User, Pet, Veterinary],
 	migrations: ["dist/migrations/*.js"],
 	subscribers: isTestEnv ? ["dist/subscribers/*.js"] : ["src/subscribers/*.ts"],
   });

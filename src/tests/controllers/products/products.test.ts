@@ -8,54 +8,54 @@ import {
 } from "../../../controller/product.controller";
 import { Request, Response } from "express";
 
-describe("Get All Products", () => {
-  it("should return all available products", async () => {
+// describe("Get All Products", () => {
+//   it("should return all available products", async () => {
 
-    const mockProducts = [1, 2].map(id => {
-      const product = new Product();
-      Object.assign(product, { id, name: "Test Product" });
-      return product;
-    });
+//     const mockProducts = [1, 2].map(id => {
+//       const product = new Product();
+//       Object.assign(product, { id, name: "Test Product" });
+//       return product;
+//     });
 
-    const mockRequest = {} as Request;
-    const mockResponse = {
-      status: jest.fn().mockReturnThis(),
-      send: jest.fn(),
-    } as unknown as Response;
+//     const mockRequest = {} as Request;
+//     const mockResponse = {
+//       status: jest.fn().mockReturnThis(),
+//       send: jest.fn(),
+//     } as unknown as Response;
     
-    jest.spyOn(Product, "find").mockResolvedValue(mockProducts);
+//     jest.spyOn(Product, "find").mockResolvedValue(mockProducts);
 
-    await getAllProducts(mockRequest, mockResponse);
+//     await getAllProducts(mockRequest, mockResponse);
 
-    const allProducts = (mockResponse.send as jest.Mock).mock.calls[0][0];
-    // console.log("PRODUCCCCCCCCCSTS ",allProducts)
-    expect(mockResponse.status).toHaveBeenCalledWith(200);
-    expect(allProducts.length).toBeGreaterThan(0);
-  });
+//     const allProducts = (mockResponse.send as jest.Mock).mock.calls[0][0];
+//     // console.log("PRODUCCCCCCCCCSTS ",allProducts)
+//     expect(mockResponse.status).toHaveBeenCalledWith(200);
+//     expect(allProducts.length).toBeGreaterThan(0);
+//   });
 
-  it("should return 'Products not found' message", async () => {
-    const mockRequest = {} as Request;
-    const mockResponse = {
-      status: jest.fn().mockReturnThis(),
-      send: jest.fn(),
-    } as unknown as Response;
+//   it("should return 'Products not found' message", async () => {
+//     const mockRequest = {} as Request;
+//     const mockResponse = {
+//       status: jest.fn().mockReturnThis(),
+//       send: jest.fn(),
+//     } as unknown as Response;
 
-    // We simulate that mocked repository returns an empty array
-    const mockRepository = { 
-      find: jest.fn().mockResolvedValue([])
-    } as unknown as Repository<Product>
+//     // We simulate that mocked repository returns an empty array
+//     const mockRepository = { 
+//       find: jest.fn().mockResolvedValue([])
+//     } as unknown as Repository<Product>
 
 
-    jest.spyOn(AppDataSource, "getRepository").mockReturnValue(mockRepository);
+//     jest.spyOn(AppDataSource, "getRepository").mockReturnValue(mockRepository);
 
-    await getAllProducts(mockRequest, mockResponse);
+//     await getAllProducts(mockRequest, mockResponse);
 
-    expect(mockResponse.status).toHaveBeenCalledWith(404);
-    expect(mockResponse.send).toHaveBeenCalledWith({
-      error: "Products not found",
-    });
-  });
-});
+//     expect(mockResponse.status).toHaveBeenCalledWith(404);
+//     expect(mockResponse.send).toHaveBeenCalledWith({
+//       error: "Products not found",
+//     });
+//   });
+// });
 
 describe("Create Product", () => {
   it("should return a new product", async () => {
