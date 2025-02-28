@@ -2,20 +2,21 @@ import "reflect-metadata";
 import AppDataSource from "./src/config/data-source";
 
 beforeAll(async () => {
-  // if (process.env.CI === "true") {
-  //   Object.assign(AppDataSource, {
-  //     host: "postgres",
-  //     port: parseInt(process.env.DB_PORT || "5432"),
-  //     username: process.env.DB_USER,
-  //     password: process.env.DB_PASSWORD,
-  //     database: process.env.TEST_DB_NAME,
-  //   });
-  //   await AppDataSource.initialize();
-  //   console.log("Database connected!"); 
-  // } else {
+  if (process.env.CI === "true") {
+    Object.assign(AppDataSource, {
+      host: "postgres",
+      port: parseInt(process.env.DB_PORT || "5432"),
+      username: process.env.DB_USER,
+      password: process.env.DB_PASSWORD,
+      database: process.env.TEST_DB_NAME,
+      entities: ["dist/Model/*.ts"]
+    });
     await AppDataSource.initialize();
     console.log("Database connected!");
-  // }
+  } else {
+    await AppDataSource.initialize();
+    console.log("Database connected!");
+  }
 });
 
 afterAll(async () => {
