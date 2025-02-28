@@ -16,7 +16,8 @@ const AppDataSource = new DataSource({
 	password: process.env.DB_PASSWORD,
 	database: isTestEnv ? process.env.TEST_DB_NAME : process.env.DB_NAME,
 	synchronize: process.env.NODE_ENV !== 'production',
-	entities: [Product, Pet, User, Veterinary],
+	entities: ["dist/Model/*.js"]
+	// entities: [Product, Pet, User, Veterinary], // TO TEST WHITOUT CI
 	// logging: process.env.NODE_ENV !== 'production',
 	// migrations: isTestEnv ? ["dist/migrations/*.ts"] : ["src/migrations/*.ts"],
 	// subscribers: isTestEnv ? ["dist/subscribers/*.ts"] : ["src/subscribers/*.ts"],
