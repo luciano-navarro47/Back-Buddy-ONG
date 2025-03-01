@@ -3,7 +3,7 @@ import { User, Status, Role } from "../Model/User";
 import { handleHttpError, NotFoundError } from "../utils/error.handler";
 import { encrypt } from "../utils/bcrypt.handler";
 import { verified } from "../utils/bcrypt.handler";
-import { transporter } from "../utils/sendEmail";
+import { sendEmail } from "../utils/sendEmail";
 
 export const createUser = async (req: Request, res: Response) => {
   const { name, surname, email, username, phone, password } = req.body;
@@ -20,32 +20,11 @@ export const createUser = async (req: Request, res: Response) => {
     newUser.role = Role.USER;
     newUser.status = Status.ACTIVE;
 
-    // console.log("NEW USER: ", newUser);
     await newUser.save();
-
+	await sendEmail(email, name);
     res.status(200).send(newUser);
   } catch (error) {
-    console.log("ERRORRR: ", error);
     handleHttpError(res, "ERROR_CREATE_USER");
-  }
-
-// Welcome message from Nodemailer
-  try {
-  	await transporter.sendMail({
-  		from: '"🐾​ EQUIPO BUDDY-ONG 🐾​" <buddy-ong@gmail.com>',
-  		to: email,
-  		subject: "Bienvenido/a BUDDY ONG!",
-  		text: "PLAIN TEXT BODY", // plain text body
-  		html: `<b> 
-			Hola ${name},
-			El equipo de Buddy ONG te quiere dar la bienvenida y ante todo, agradecer tu tiempo por haberte registrado en nuestra comunidad. Nos complace que estés aqui.
-  			Saludos,
-			Equipo de Buddy
-  		   </b>`,
-  	});
-  } catch (error) {
-  	console.log("EMAIL ERROR: ", error);
-	handleHttpError(res, "ERROR_SEND_EMAIL");
   }
 };
 
