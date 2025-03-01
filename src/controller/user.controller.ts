@@ -3,7 +3,7 @@ import { User, Status, Role } from "../Model/User";
 import { handleHttpError, NotFoundError } from "../utils/error.handler";
 import { encrypt } from "../utils/bcrypt.handler";
 import { verified } from "../utils/bcrypt.handler";
-import { transporter } from "../config/mailer";
+import { transporter } from "../utils/sendEmail";
 
 export const createUser = async (req: Request, res: Response) => {
   const { name, surname, email, username, phone, password } = req.body;
@@ -20,7 +20,7 @@ export const createUser = async (req: Request, res: Response) => {
     newUser.role = Role.USER;
     newUser.status = Status.ACTIVE;
 
-    console.log("NEW USER: ", newUser);
+    // console.log("NEW USER: ", newUser);
     await newUser.save();
 
     res.status(200).send(newUser);
@@ -29,20 +29,24 @@ export const createUser = async (req: Request, res: Response) => {
     handleHttpError(res, "ERROR_CREATE_USER");
   }
 
-  //SEND EMAIL DE BIENVENIDA
-  // try {
-  // 	await transporter.sendMail({
-  // 		from: '"EQUIPO BUDDY-ONG 👻" <correodepruebaproyectofinal@gmail.com>', // sender address
-  // 		to: email, // list of receivers
-  // 		subject: "¡¡¡Bienvenido a BUDDY-ONG!!!", // Subject line
-  // 		// text: "", // plain text body
-  // 		html: `<b>El equipo Buddy-ONG te quiere dar una gran bienvenida y, sobre todo, agradecer tu tiempo para registrarte en nuestro sitio Web. Muchas gracias. ¡Es un placer conocerte y que estés aqui!
-  // 			Saludos!
-  // 		   </b>`, // html body
-  // 	});
-  // } catch (error) {
-  // 	console.log(error);
-  // }
+// Welcome message from Nodemailer
+  try {
+  	await transporter.sendMail({
+  		from: '"🐾​ EQUIPO BUDDY-ONG 🐾​" <buddy-ong@gmail.com>',
+  		to: email,
+  		subject: "Bienvenido/a BUDDY ONG!",
+  		text: "PLAIN TEXT BODY", // plain text body
+  		html: `<b> 
+			Hola ${name},
+			El equipo de Buddy ONG te quiere dar la bienvenida y ante todo, agradecer tu tiempo por haberte registrado en nuestra comunidad. Nos complace que estés aqui.
+  			Saludos,
+			Equipo de Buddy
+  		   </b>`,
+  	});
+  } catch (error) {
+  	console.log("EMAIL ERROR: ", error);
+	handleHttpError(res, "ERROR_SEND_EMAIL");
+  }
 };
 
 export const getAllUsers = async (req: Request, res: Response) => {
