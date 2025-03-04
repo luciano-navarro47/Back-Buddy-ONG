@@ -67,7 +67,7 @@ jobs:
         run: node dist/index.js
 
       - name: Run product tests
-        run: npm test -- --testPathPattern=product.test.ts
+        run: npm test -- --testPathPattern=products.test.ts
         continue-on-error: true
         
       - name: Run seeders tests
