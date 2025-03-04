@@ -21,8 +21,6 @@ jobs:
           POSTGRES_DB: ${{secrets.TEST_DB_NAME}}
           POSTGRES_PASSWORD: ${{secrets.DB_PASSWORD}}
           POSTGRES_HOST_AUTH_METHOD: trust
-
-
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
@@ -31,14 +29,21 @@ jobs:
         ports:
           - 5432:5432
 
+    env:
+      CI: "true"
+      NODE_ENV: ${{secrets.NODE_ENV}}
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: ${{secrets.DB_USER}}
+      DB_PASSWORD: ${{secrets.DB_PASSWORD}}
+      DB_NAME: ${{secrets.DB_NAME}}
+      TEST_DB_NAME: ${{secrets.TEST_DB_NAME}}
+      MP_ACCESS_TOKEN: ${{secrets.MP_ACCESS_TOKEN}}
+      UNSPLASH_ACCESS_KEY: ${{secrets.UNSPLASH_ACCESS_KEY}}
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
-
-      - name: Use Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "22.11.0"
 
       - name: Install dependencies
         run: npm ci
@@ -46,57 +51,20 @@ jobs:
       - name: Compile TypeScript
         run: npx tsc
 
-      - name: "Wait for PostgreSQL to be ready"
-        run: |
-          for i in {1..10}; do
-            pg_isready -h postgres -U ${{ secrets.DB_USER }} -d ${{ secrets.TEST_DB_NAME }} && break
-            echo "Waiting for PostgreSQL to be ready..."
-            sleep 5
-          done
-
       - name: Install PostgreSQL Client
         run: apt-get update && apt-get install -y postgresql-client
 
       - name: Verify connection to PostgreSQL
         run: |
-          echo "Trying to connect to PostgreSQL..."
-          psql -h postgres -U ${{secrets.DB_USER}} -d ${{secrets.TEST_DB_NAME}} -c "SELECT 1;"
-      
-      - name: Verify PostgreSQL readiness
-        run: |
+          echo "Waiting for PostgreSQL to be ready..."
           until pg_isready -h postgres -U ${{ secrets.DB_USER }} -d ${{ secrets.TEST_DB_NAME }}; do
-            echo "Waiting for PostgreSQL..."
             sleep 2
           done
-          echo "PostgreSQL is ready!"  
-      
-      - name: Wait for PostgreSQL to be ready
-        run: sleep 5
+          echo "PostgreSQL is ready!"
+          psql -h postgres -U ${{secrets.DB_USER}} -d ${{secrets.TEST_DB_NAME}} -c "SELECT 1;"
 
       - name: Test database connection with TypeORM
         run: node dist/index.js
 
-        env:
-          CI: "true"
-          NODE_ENV: ${{secrets.NODE_ENV}}
-          DB_HOST: postgres
-          DB_PORT: 5432
-          DB_USER: ${{secrets.DB_USER}}
-          DB_PASSWORD: ${{secrets.DB_PASSWORD}}
-          DB_NAME: ${{secrets.DB_NAME}}
-          TEST_DB_NAME: ${{secrets.TEST_DB_NAME}}
-          MP_ACCESS_TOKEN: ${{secrets.MP_ACCESS_TOKEN}}
-          UNSPLASH_ACCESS_KEY: ${{secrets.UNSPLASH_ACCESS_KEY}}
-
-      - run: npm test
-        env:
-          CI: "true"
-          NODE_ENV: ${{secrets.NODE_ENV}}
-          DB_HOST: postgres
-          DB_PORT: 5432
-          DB_USER: ${{secrets.DB_USER}}
-          DB_PASSWORD: ${{secrets.DB_PASSWORD}}
-          DB_NAME: ${{secrets.DB_NAME}}
-          TEST_DB_NAME: ${{secrets.TEST_DB_NAME}}
-          MP_ACCESS_TOKEN: ${{secrets.MP_ACCESS_TOKEN}}
-          UNSPLASH_ACCESS_KEY: ${{secrets.UNSPLASH_ACCESS_KEY}}
+      - name: Run tests
+        run: npm test
