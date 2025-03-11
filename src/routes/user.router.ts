@@ -4,15 +4,18 @@ import {
 	getUserId,
 	updateUser,
 	createUser,
+	checkUsername,
 	setStatusUserInDB,
 	loginCtrl,
 	deleteUser,
+	checkUsernameRateLimiter,
 } from "../controller/user.controller";
 import { userValidator } from "../middlewares/validators/user.validator";
 
 const userRouter = Router();
 
 userRouter.get("/", getAllUsers);
+userRouter.get("/check-username", checkUsernameRateLimiter, checkUsername);
 userRouter.get("/:id", getUserId);
 userRouter.put("/:id", updateUser);
 userRouter.put("/setStatusUser/:id", setStatusUserInDB);

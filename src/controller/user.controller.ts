@@ -4,6 +4,7 @@ import { handleHttpError, NotFoundError } from "../utils/error.handler";
 import { encrypt } from "../utils/bcrypt.handler";
 import { verified } from "../utils/bcrypt.handler";
 import { sendEmail } from "../utils/sendEmail";
+import rateLimit from "express-rate-limit";
 
 export const createUser = async (req: Request, res: Response) => {
   const { name, surname, email, username, phone, password } = req.body;
@@ -21,7 +22,7 @@ export const createUser = async (req: Request, res: Response) => {
     newUser.status = Status.ACTIVE;
 
     await newUser.save();
-	await sendEmail(email, name);
+    await sendEmail(email, name);
     res.status(200).send(newUser);
   } catch (error) {
     handleHttpError(res, "ERROR_CREATE_USER");
@@ -107,6 +108,41 @@ export const loginCtrl = async (req: Request, res: Response) => {
     }
   } catch {
     res.status(400).send("usuario incorrecto");
+  }
+};
+
+export const checkUsernameRateLimiter = rateLimit({
+  windowMs: 1 * 60 * 1000,
+  max: 50,
+  message: {error: "Too many requests, try again later."},
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+export const checkUsername = async (req: Request, res: Response) => {
+  let { username } = req.query;
+
+  if (!username || typeof username !== "string") {
+    return res
+      .status(400)
+      .json({
+        message: "The username is required and must be a valid string.",
+      });
+  }
+
+  try {
+    const existingUser = await User.findOne({ where: { username } });
+
+    if (existingUser) {
+      return res
+        .status(409)
+        .json({ message: "The username is already in use." });
+    }
+
+    return res.status(200).json({ message: "The Username is available." });
+  } catch (error) {
+    console.log("Error in checkUsername: ", error);
+    handleHttpError(res, "INTERNAL_SERVER_ERROR");
   }
 };
 

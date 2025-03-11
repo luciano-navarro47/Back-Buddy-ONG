@@ -11,14 +11,14 @@ const isValidUser: CustomValidator = async (email) => {
 	});
 };
 
-const isValidUserName: CustomValidator = async (username) => {
-	return User.find({ where: [{ username: username }] }).then((user) => {
-		console.log(user);
-		if (user.length) {
-			return Promise.reject("Username already in use");
-		}
-	});
-};
+// const isValidUserName: CustomValidator = async (username) => {
+// 	return User.find({ where: [{ username: username }] }).then((user) => {
+// 		console.log(user);
+// 		if (user.length) {
+// 			return Promise.reject("Username already in use");
+// 		}
+// 	});
+// };
 
 export const userValidator = [
 	check("name").exists().notEmpty().isLength({ min: 1, max: 50 }),
@@ -37,8 +37,8 @@ export const userValidator = [
 	check("username")
 		.exists()
 		.notEmpty()
-		.isLength({ min: 1, max: 50 })
-		.custom(isValidUserName),
+		.isLength({ min: 3, max: 10 }),
+		// .custom(isValidUserName),
 	(req: Request, res: Response, next: NextFunction) => {
 		const errors = validationResult(req);
 		if (!errors.isEmpty()) {
