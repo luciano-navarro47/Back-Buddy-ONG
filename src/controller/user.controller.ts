@@ -123,25 +123,16 @@ export const checkUsername = async (req: Request, res: Response) => {
   let { username } = req.query;
 
   if (!username || typeof username !== "string") {
-    return res
-      .status(400)
-      .json({
-        message: "The username is required and must be a valid string.",
-      });
+    return res.status(400).json({
+      message: "The username is required and must be a valid string.",
+    });
   }
 
   try {
     const existingUser = await User.findOne({ where: { username } });
 
-    if (existingUser) {
-      return res
-        .status(409)
-        .json({ message: "The username is already in use." });
-    }
-
-    return res.status(200).json({ message: "The Username is available." });
+    return res.status(200).json({ available: !existingUser }); // Devuelve un objeto con `available`
   } catch (error) {
-    console.log("Error in checkUsername: ", error);
     handleHttpError(res, "INTERNAL_SERVER_ERROR");
   }
 };
