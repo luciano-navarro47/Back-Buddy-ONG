@@ -11,7 +11,7 @@ export const getAllProducts = async (req: Request, res: Response) => {
   try {
     const productsRepository = await AppDataSource.getRepository(Product);
     const products = await productsRepository.find();
-    
+
     if (!products || products.length === 0) {
       return handleHttpError(res, "Products not found", 404);
     }
@@ -67,11 +67,12 @@ export const updateProduct = async (req: Request, res: Response) => {
 
   try {
     const product = await Product.findOneBy({ id: id });
+    
     if (!product) {
       return handleHttpError(res, "Product not found", 404);
     }
     await Product.update({ id: id }, req.body);
-    return res.sendStatus(204);
+    return res.sendStatus(200);
   } catch (error) {
     return handleHttpError(res, "ERROR_UPDATE_PRODUCT", 500);
   }
