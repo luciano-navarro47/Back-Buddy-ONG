@@ -1,104 +1,72 @@
 import { Request, Response } from "express";
+import { MercadoPagoConfig, Preference, PreApproval } from "mercadopago";
+import { handleHttpError } from "../utils/error.handler";
+
 const url = "https://buddyong.vercel.app/home";
-const mercadopago = require("mercadopago");
+
+const client = new MercadoPagoConfig({
+  accessToken: process.env.MP_ACCESS_TOKEN || "",
+});
+
+const preference = new Preference(client);
+const preapproval = new PreApproval(client);
+
+export const donation = async (req: Request, res: Response) => {
+  const { title, unit_price } = req.body.donation;
+
+  try {
+    const body = {
+      items: [
+        {
+          id: "1", 
+          title: title,
+          unit_price: Number(unit_price),
+          currency_id: "ARS",
+          quantity: 1,
+        },
+      ],
+      back_urls: {
+        success: url,
+        failure: url,
+        pending: url,
+      },
+      auto_return: "approved",
+    };
+
+    const newPreference = await preference.create({ body });
+    console.log(newPreference);
+    res.status(200).json(newPreference.init_point);
+  } catch (error) {
+    handleHttpError(res, "INTERNAL_SERVER_ERROR", 500)
+  }
+};
+
+export const subscription = async (req: Request, res: Response) => {
+
+  const { email } = req.body;
 
 
-export const paymentMp =(req: Request, res: Response)=>{
-
-
-// console.log(donation);
-let objProduct;
-if(req.body.cart){
-  const {cart} = req.body;
-  objProduct =cart.map((value: any) => (
-    {
-      id: value.id,
-      title: value.name,
-      unit_price: value.price,
-      currency_id: "ARS",
-      quantity: value.amount,
-    }
-  ))
-}
-if(req.body.donation){
-  const {donation} = req.body;
-
-   objProduct = [{
-    title: "Donación",
-    unit_price : donation.unit_price,
-    currency_id : "ARS",
-    quantity : 1
-  }]
-
-}
-
-
-// Crea un objeto de preferencia
-let preference = {
-    //?url que retorna despues de una operación
-    binary_mode: true,
-    back_urls:{
-        success: url
-    },
-    items: objProduct,
-//     // notification_url: `https://7c5e-190-18-180-176.sa.ngrok.io/donation/notification/`
-  };
-  
-  mercadopago.preferences
-    .create(preference)
-    .then(function (response: any) {
-        // console.log(`<a href="${response.body.init_point} IR A PAGAR</a>`); //?url que genera mercadopago, el usuario va a hacer click en este link
-        res.json(response.body.init_point)
-      // En esta instancia deberás asignar el valor dentro de response.body.id por el ID de preferencia solicitado en el siguiente paso
-    })
-    .catch(function (error: any) {
-      console.log(error);
-    });
-  
-}
-
-export const subscription = async(req: Request, res: Response) => {
-  
-  const {email} = req.body;
   const mount = 500;
   const frequency = "months";
-
-  const preference = {
-    payer_email: "test_user_1305654611@testuser.com",
-    //email del usuario comprador
+  const body = {
+    payer_email: email,
     reason: "Colaboración mensual",
     external_reference: "",
     back_url: url,
-    //si se completa el pago
     auto_recurring: {
-      //objeto para crear la subscripción
-    frequency: 1,
-      // frecuencia de cobro
-    frequency_type: frequency,
-      //tipo de frecuencia
-      //en este ejemplo es 1 vez al mes
-    transaction_amount: mount,
-      //precio de la suscripción
-    currency_id: "ARS",
-      //moneda a cobrar
+      frequency: 1,
+      frequency_type: frequency,
+      transaction_amount: mount,
+      currency_id: "ARS",
     }
-  };
+  }
 
   try {
-    const mp = await mercadopago.preapproval.create(preference);
-    //creamos un preapproval (link de pago) con nuestra preferencia
-
-    const linkCheckout = mp && mp.response && mp.response.init_point;
-    //obtenemos el link de la respuesta
-    // console.log(linkCheckout);
-    res.json(linkCheckout) ;
-    //le devolvemos el link al controller
+    const newPreapproval = await preapproval.create({body});
+    console.log("MP: ", newPreapproval)
+    res.status(200).json(newPreapproval.init_point);
   } catch (err) {
-    //en caso de que algo malga sal
-    console.log(err);
-    return false;
+    console.log("ERROR: ", err)
+    handleHttpError(res, "Error creating subscription", 500);
   }
 }
-
-
- 

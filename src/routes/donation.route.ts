@@ -1,10 +1,9 @@
 import { Router } from "express";
-import {paymentMp} from "../controller/paymentMp";
-import { subscription } from "../controller/paymentMp";
+import { donation, subscription } from "../controller/paymentMp";
 
 const donationRouter = Router();
 
-donationRouter.post('/', paymentMp );
-donationRouter.post("/subscription",subscription );
+donationRouter.post('/', donation);
+donationRouter.post("/subscription", subscription);
 
 export default donationRouter;
