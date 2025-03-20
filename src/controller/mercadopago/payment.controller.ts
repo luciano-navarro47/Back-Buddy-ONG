@@ -62,7 +62,6 @@ export const subscription = async (req: Request, res: Response) => {
     const newPreapproval = await preapproval.create({ body });
     res.status(200).json(newPreapproval.init_point);
   } catch (err) {
-    console.log("ERROR: ", err);
     handleHttpError(res, "Error creating subscription", 500);
   }
 };
