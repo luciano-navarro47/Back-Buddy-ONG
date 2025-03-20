@@ -9,13 +9,10 @@ import {
   OneToMany,
   DeleteDateColumn,
   JoinColumn,
-  // ManyToOne,
 } from "typeorm";
 
 import { Pet } from "./Pet";
 import { Customer } from "./Customer";
-import { Card } from "./Card";
-import { Subscription } from "./Subscription";
 
 export enum Role {
 	ADMIN = 'admin',
@@ -32,10 +29,10 @@ export class User extends BaseEntity {
   id!: string;
 
   @Column()
-  name!: string;
+  first_name!: string;
 
   @Column()
-  surname!: string;
+  last_name!: string;
 
   @Column()
   email!: string;
@@ -67,9 +64,6 @@ export class User extends BaseEntity {
 
   @OneToMany(() => Pet, (pet) => pet.user)
   pets!: Pet[];
-
-  @OneToMany(() => Subscription, (subscriptions) => subscriptions.user)
-  subscriptions?: Subscription[];
 
   @CreateDateColumn()
   createdAt!: Date;
