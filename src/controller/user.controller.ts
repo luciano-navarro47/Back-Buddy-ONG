@@ -7,13 +7,13 @@ import { sendEmail } from "../utils/sendEmail";
 import rateLimit from "express-rate-limit";
 
 export const createUser = async (req: Request, res: Response) => {
-  const { name, surname, email, username, phone, password } = req.body;
+  const { first_name, last_name, email, username, phone, password } = req.body;
   try {
     const passwordHashed = await encrypt(password);
 
     const newUser = new User();
-    newUser.name = name;
-    newUser.surname = surname;
+    newUser.first_name = first_name;
+    newUser.last_name = last_name;
     newUser.email = email;
     newUser.password = passwordHashed;
     newUser.username = username;
@@ -22,7 +22,7 @@ export const createUser = async (req: Request, res: Response) => {
     newUser.status = Status.ACTIVE;
 
     await newUser.save();
-    await sendEmail(email, name);
+    await sendEmail(email, first_name);
     res.status(200).send(newUser);
   } catch (error) {
     handleHttpError(res, "ERROR_CREATE_USER");

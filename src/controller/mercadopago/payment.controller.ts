@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { MercadoPagoConfig, Preference, PreApproval } from "mercadopago";
 import { handleHttpError } from "../../utils/error.handler";
+import { UUID } from "typeorm/driver/mongodb/bson.typings";
 
 const url = "https://buddyong.vercel.app/home";
 

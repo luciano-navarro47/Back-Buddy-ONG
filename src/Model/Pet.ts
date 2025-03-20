@@ -87,6 +87,6 @@ export class Pet extends BaseEntity {
   @UpdateDateColumn()
   updatedAt!: Date;
 
-  @ManyToOne(() => User, (user) => user.pet, { cascade: true })
+  @ManyToOne(() => User, (user) => user.pets, { cascade: true })
   user?: User;
 }
