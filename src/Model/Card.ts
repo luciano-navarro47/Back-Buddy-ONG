@@ -8,16 +8,17 @@ import {
   JoinColumn,
   PrimaryColumn,
   ManyToOne,
+  ManyToMany,
+  OneToMany,
 } from "typeorm";
 
-import { User } from "./User";
 import { Subscription } from "./Subscription";
-import { subscription } from "../controller/mercadopago/payment.controller";
 import { Customer } from "./Customer";
+import { CardSubscription } from "./CardSubscription";
 
 @Entity()
 export class Card extends BaseEntity {
-  @PrimaryColumn("varchar")
+  @PrimaryColumn({ type: "varchar" })
   id!: string;
 
   @Column({ type: "int" })
@@ -31,11 +32,14 @@ export class Card extends BaseEntity {
 
   @ManyToOne(() => Customer, (customer) => customer.cards)
   @JoinColumn({ name: "customer_id" })
-  customer?: User;
+  customer?: Customer;
 
-  @ManyToOne(() => Subscription, (subscription) => subscription.card)
-  @JoinColumn({ name: "subscription_id" })
-  subscription?: Subscription[]
+  @ManyToMany(() => Subscription, (subscription) => subscription.cards)
+  @JoinColumn({ name: "card_subscription" })
+  subscriptions!: Subscription[];
+
+  @OneToMany(() => CardSubscription, (cardSubscription) => cardSubscription.card)
+  cardSubscriptions!: CardSubscription[];
 
   @CreateDateColumn()
   createdAt!: Date;

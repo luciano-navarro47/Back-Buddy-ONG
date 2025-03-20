@@ -9,9 +9,13 @@ import {
     JoinColumn,
     BaseEntity,
     OneToOne,
+    ManyToMany,
+    OneToMany,
   } from "typeorm";
-  import { User } from "./User";
-  import { Card } from "./Card";
+
+import { Card } from "./Card";
+import { Customer } from "./Customer";
+import { CardSubscription } from "./CardSubscription";
   
   export enum SubscriptionStatus {
     PENDING = "pending",
@@ -52,12 +56,15 @@ import {
     @Column({ type: "enum", enum: SubscriptionStatus, default: SubscriptionStatus.PENDING })
     status!: SubscriptionStatus;
   
-    @ManyToOne(() => User, (user) => user.subscriptions)
-    @JoinColumn({ name: "user_id" })
-    user!: User;
+    @ManyToOne(() => Customer, (customer) => customer.subscriptions)
+    @JoinColumn({ name: "customer_id" })
+    customer!: Customer;
   
-    @OneToOne(() => Card, (card) => card.subscription)
-    card?: Card;
+    @ManyToMany(() => Card, (card) => card.subscriptions)
+    cards!: Card[];
+
+    @OneToMany(() => CardSubscription, (cardSubscription) => cardSubscription.subscription)
+    cardSubscriptions!: CardSubscription[];
   
     // Setting Recurrence
     @Column({ type: "int", nullable: true })
