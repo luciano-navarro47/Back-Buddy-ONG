@@ -15,8 +15,8 @@ export const getPetRandomData = jest.fn(() =>
   
 export const getUserRandomData = jest.fn(() => 
       Promise.resolve({
-        name: "Test",
-        surname: "Test",
+        first_name: "Test",
+        last_name: "Test",
         email: "testuser@gmail.com",
         password: "testPassword00",
         username: "test00",
