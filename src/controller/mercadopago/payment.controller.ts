@@ -34,7 +34,6 @@ export const donation = async (req: Request, res: Response) => {
     };
 
     const newPreference = await preference.create({ body });
-    console.log(newPreference);
     res.status(200).json(newPreference.init_point);
   } catch (error) {
     handleHttpError(res, "INTERNAL_SERVER_ERROR", 500);
@@ -61,7 +60,6 @@ export const subscription = async (req: Request, res: Response) => {
 
   try {
     const newPreapproval = await preapproval.create({ body });
-    console.log("MP: ", newPreapproval);
     res.status(200).json(newPreapproval.init_point);
   } catch (err) {
     console.log("ERROR: ", err);

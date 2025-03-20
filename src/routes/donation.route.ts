@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { donation, subscription } from "../controller/mp/payment.controller";
+import { donation, subscription } from "../controller/mercadopago/payment.controller";
 
 const donationRouter = Router();
 
