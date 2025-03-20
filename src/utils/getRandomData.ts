@@ -82,8 +82,8 @@ export const getPetRandomData = async (): Promise<{
 };
 
 export const getUserRandomData = async (): Promise<{
-  name: string;
-  surname: string;
+  first_name: string;
+  last_name: string;
   email: string;
   password: string;
   username: string;
@@ -91,17 +91,17 @@ export const getUserRandomData = async (): Promise<{
   role: Role;
   status: UserStatus;
 }> => {
-  const name = faker.person.firstName();
-  const surname = faker.person.lastName();
+  const first_name = faker.person.firstName();
+  const last_name = faker.person.lastName();
   const email = faker.internet.email({
-    firstName: name,
-    lastName: surname,
+    firstName: first_name,
+    lastName: last_name,
     provider: "gmail.com",
   });
   const password = faker.internet.password({ length: 12 });
   const username = faker.internet.username({
-    firstName: name,
-    lastName: surname,
+    firstName: first_name,
+    lastName: last_name,
   });
   const phone = `15${faker.number.int({
     min: 10000000,
@@ -110,7 +110,7 @@ export const getUserRandomData = async (): Promise<{
   const role = faker.helpers.arrayElement(Object.values(Role));
   const status = faker.helpers.arrayElement(Object.values(UserStatus));
 
-  return { name, surname, email, password, username, phone, role, status };
+  return { first_name, last_name, email, password, username, phone, role, status };
 };
 
 export const getVeterinaryRandomData = async (): Promise<{

@@ -10,11 +10,11 @@ export default class UserSeeder extends Seeder {
 
     for (let i = 0; i < 10; i++) {
       const user = new User();
-      const {name, surname, email, password, username, phone, role, status} = await getUserRandomData();
+      const {first_name, last_name, email, password, username, phone, role, status} = await getUserRandomData();
 
       Object.assign(user, {
-        name,
-        surname,
+        first_name,
+        last_name,
         email,
         password,
         username,

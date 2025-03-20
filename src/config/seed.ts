@@ -26,7 +26,7 @@ dataSource
       console.log("🐾 Product table already has records. Seeding canceled.");
     } else {
       await new ProductSeeder().run(dataSource);
-      console.log("✅ Seeding User completed.");
+      console.log("✅ Seeding Product completed.");
     }
 
     const userCount = await dataSource.getRepository(User).count();
@@ -34,7 +34,7 @@ dataSource
       console.log("🐾 User table already has records. Seeding canceled.");
     } else {
       await new UserSeeder().run(dataSource);
-      console.log("✅ Seeding Product completed.");
+      console.log("✅ Seeding User completed.");
     }
 
     const veterinaryCount = await dataSource.getRepository(Veterinary).count();
