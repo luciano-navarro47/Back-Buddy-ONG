@@ -5,14 +5,18 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   BaseEntity,
+  OneToOne,
   OneToMany,
   DeleteDateColumn,
+  JoinColumn,
+  // ManyToOne,
 } from "typeorm";
 
 import { Pet } from "./Pet";
+import { Customer } from "./Customer";
+import { Card } from "./Card";
+import { Subscription } from "./Subscription";
 
-// export type Role = "admin" | "user";
-// export type Status = "active" | "banned";
 export enum Role {
 	ADMIN = 'admin',
 	USER = 'user'
@@ -56,6 +60,16 @@ export class User extends BaseEntity {
     enum: Object.values(Status)
   })
   status!: Status;
+  
+  @OneToOne(() => Customer, { cascade: true, eager: true })
+  @JoinColumn({ name: "mp_customer_id"})
+  customer?: Customer;
+
+  @OneToMany(() => Pet, (pet) => pet.user)
+  pets!: Pet[];
+
+  @OneToMany(() => Subscription, (subscriptions) => subscriptions.user)
+  subscriptions?: Subscription[];
 
   @CreateDateColumn()
   createdAt!: Date;
@@ -65,7 +79,4 @@ export class User extends BaseEntity {
 
   @DeleteDateColumn()
   deletedAt!: Date;
-
-  @OneToMany(() => Pet, (pet) => pet.user)
-  pet!: Pet[];
 }
