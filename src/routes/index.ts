@@ -5,7 +5,6 @@ import userRouter from "./user.router";
 import productRouter from "./product.router";
 import veterinaryRouter from "./veterinay.router";
 import donationRouter from "./donation.route";
-import subscription  from "./donation.route";
 import loginRouter from "./login";
 import loginAuth0Router from "./loginAuth0";
 
