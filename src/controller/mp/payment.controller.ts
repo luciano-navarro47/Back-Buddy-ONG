@@ -1,11 +1,11 @@
 import { Request, Response } from "express";
 import { MercadoPagoConfig, Preference, PreApproval } from "mercadopago";
-import { handleHttpError } from "../utils/error.handler";
+import { handleHttpError } from "../../utils/error.handler";
 
 const url = "https://buddyong.vercel.app/home";
 
 const client = new MercadoPagoConfig({
-  accessToken: process.env.MP_ACCESS_TOKEN || "",
+  accessToken: process.env.ACCESS_TOKEN_MP || "",
 });
 
 const preference = new Preference(client);
@@ -18,7 +18,7 @@ export const donation = async (req: Request, res: Response) => {
     const body = {
       items: [
         {
-          id: "1", 
+          id: "1",
           title: title,
           unit_price: Number(unit_price),
           currency_id: "ARS",
@@ -37,14 +37,12 @@ export const donation = async (req: Request, res: Response) => {
     console.log(newPreference);
     res.status(200).json(newPreference.init_point);
   } catch (error) {
-    handleHttpError(res, "INTERNAL_SERVER_ERROR", 500)
+    handleHttpError(res, "INTERNAL_SERVER_ERROR", 500);
   }
 };
 
 export const subscription = async (req: Request, res: Response) => {
-
   const { email } = req.body;
-
 
   const mount = 500;
   const frequency = "months";
@@ -58,15 +56,15 @@ export const subscription = async (req: Request, res: Response) => {
       frequency_type: frequency,
       transaction_amount: mount,
       currency_id: "ARS",
-    }
-  }
+    },
+  };
 
   try {
-    const newPreapproval = await preapproval.create({body});
-    console.log("MP: ", newPreapproval)
+    const newPreapproval = await preapproval.create({ body });
+    console.log("MP: ", newPreapproval);
     res.status(200).json(newPreapproval.init_point);
   } catch (err) {
-    console.log("ERROR: ", err)
+    console.log("ERROR: ", err);
     handleHttpError(res, "Error creating subscription", 500);
   }
-}
+};
