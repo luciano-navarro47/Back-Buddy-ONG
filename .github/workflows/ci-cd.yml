@@ -19,7 +19,7 @@ jobs:
         env:
           POSTGRES_USER: ${{secrets.DB_USER}}
           POSTGRES_DB: ${{secrets.TEST_DB_NAME}}
-          POSTGRES_PASSWORD: ${{secrets.DB_PASSWORD}}
+          PGPASSWORD: ${{secrets.PGPASSWORD}}
           # POSTGRES_HOST_AUTH_METHOD: trust
         options: >-
           --health-cmd pg_isready
@@ -35,7 +35,7 @@ jobs:
       DB_HOST: postgres
       DB_PORT: 5432
       DB_USER: ${{secrets.DB_USER}}
-      DB_PASSWORD: ${{secrets.DB_PASSWORD}}
+      PGPASSWORD: ${{secrets.PGPASSWORD}}
       DB_NAME: ${{secrets.DB_NAME}}
       TEST_DB_NAME: ${{secrets.TEST_DB_NAME}}
       ACCESS_TOKEN_MP: ${{secrets.ACCESS_TOKEN_MP}}
@@ -61,7 +61,7 @@ jobs:
             sleep 2
           done
           echo "PostgreSQL is ready!"
-          psql -h postgres -U ${{secrets.DB_USER}} -d ${{secrets.TEST_DB_NAME}} -c "SELECT 1;"
+          PGPASSWORD=${{ secrets.PGPASSWORD }} psql -h postgres -U ${{secrets.DB_USER}} -d ${{secrets.TEST_DB_NAME}} -c "SELECT 1;"
 
       - name: Test database connection with TypeORM
         run: node dist/index.js
