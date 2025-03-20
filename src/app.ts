@@ -14,12 +14,6 @@ server.use(cors());
 server.use(morgan("dev"));
 server.use(express.json());
 
-if (!process.env.ACCESS_TOKEN_MP) {
-  throw new Error('MP_ACCESS_TOKEN is required');
-}
-// Initialize the client object
-const client = new MercadoPagoConfig({ accessToken: process.env.ACCESS_TOKEN_MP });
-
 server.use("/", router);
 
 export default server;
