@@ -2,7 +2,6 @@ import { Request, Response } from "express";
 import { User, Status, Role } from "../Model/User";
 import { handleHttpError, NotFoundError } from "../utils/error.handler";
 import { encrypt } from "../utils/bcrypt.handler";
-import { verified } from "../utils/bcrypt.handler";
 import { sendEmail } from "../utils/sendEmail";
 import rateLimit from "express-rate-limit";
 
@@ -83,34 +82,6 @@ export const setStatusUserInDB = async (req: Request, res: Response) => {
   }
 };
 
-export const loginCtrl = async (req: Request, res: Response) => {
-  const { email, password } = req.body;
-  try {
-    const FindUser = await User.find({
-      // select: [password],
-      where: [{ email: email }],
-      relations: ["pet"],
-    });
-    console.log(FindUser);
-    if (!FindUser.length) {
-      res.status(400).send(console.log("usuario no encontrado"));
-    }
-    if (FindUser.length) {
-      const emailDb = FindUser.map((e) => e.email);
-      const passwordDb = FindUser.map((p) => p.password);
-
-      for (let i = 0; i < passwordDb.length; i++) {
-        let resultPassword = await verified(password, passwordDb[i]);
-
-        if (emailDb[0] && resultPassword) return res.status(200).send(FindUser);
-        else res.status(400).send("contraseña incorrecta");
-      }
-    }
-  } catch {
-    res.status(400).send("usuario incorrecto");
-  }
-};
-
 export const checkUsernameRateLimiter = rateLimit({
   windowMs: 1 * 60 * 1000,
   max: 50,
@@ -131,7 +102,7 @@ export const checkUsername = async (req: Request, res: Response) => {
   try {
     const existingUser = await User.findOne({ where: { username } });
 
-    return res.status(200).json({ available: !existingUser }); // Devuelve un objeto con `available`
+    return res.status(200).json({ available: !existingUser });
   } catch (error) {
     handleHttpError(res, "INTERNAL_SERVER_ERROR");
   }
