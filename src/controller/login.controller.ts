@@ -1,21 +1,17 @@
 import { Request, Response } from "express";
 import { User } from "../Model/User";
+import { handleHttpError, NotFoundError } from "../utils/error.handler";
 
-export const formData = async (req: Request, res: Response) => {
-  const { email, username } = req.body;
+export const loginUser = async (req: Request, res: Response) => {
+  const { email, password } = req.body;
   try {
-    const user = await User.find({
-      where: [{ email: email }],
-      relations: ["pet"],
-    });
+    const user = await User.findOneBy({ email: email});
+    console.log("USERRRR: ", user);
+    console.log("PWWWW: ", password);
 
-    if (user[0].username !== username)
-      return res.status(400).send("contraseña incorrecta");
-    else res.status(200).send(user);
-  } catch (error) {
-    if (error)
-      return res
-        .status(400)
-        .json("El Email ingresado no se encuentra registrado");
+    if(!user) throw new NotFoundError("User not found");
+    res.status(200).send(user);
+  } catch (error: any) {
+    handleHttpError(res, error);
   }
 };

@@ -1,51 +1,50 @@
 import { Response } from "express";
+import { stat } from "fs";
 
-export const handleHttpError = (res: Response, error: string, status = 500) => {
+export const handleHttpError = (res: Response, error: unknown) => {
   if (!res.headersSent) {
-    res.status(status).send({ error });
+    if(error instanceof Error){
+      console.error("Error: ", error.message);
+    } else {
+      console.error("Unexpected error: ", error);
+    }
+
+    const statusCode = (error as any)?.statusCode || 500;
+    const message = error instanceof Error ? error.message : "Internal server error";
+
+    return res.status(statusCode).json({ error: message });
   }
 };
 
 export class HttpError extends Error {
-  HttpError = "HttpError";
-  errorCode = 500;
-  errorMessage = "Internal server error";
+  statusCode: number;
+
+  constructor(message: string, statusCode: number) {
+    super(message);
+    this.statusCode = statusCode;
+  }
 }
 
 export class NotFoundError extends HttpError {
-  NotFoundError = "NotFoundError";
-  errorCode = 404;
-  errorMessage = "Not found";
-
-  constructor(message: string) {
-    super(message);
-    this.errorMessage = message;
+  constructor(message = "Not found") {
+    super(message, 404);
   }
 }
 
 export class BadRequestError extends HttpError {
-  BadRequestError = "BadRequestError";
-  errorCode = 404;
-  errorMessage = "Bad request";
-
-  constructor(message: string) {
-    super(message);
-    this.errorMessage = message;
+  constructor(message = "Bad request") {
+    super(message, 400);
   }
 }
 
 export class UnauthorizedError extends HttpError {
-  UnauthorizedError = "UnauthorizedError";
-  errorCode = 401;
-  errorMessage = "UnauthorizedError";
-
-  constructor() {
-    super("Authorization token is absent or invalid");
+  constructor(message = "Authorization token is absent or invalid") {
+    super(message, 401);
   }
 }
 
 export class ForbiddenError extends HttpError {
-  ForbiddenError = "ForbiddenError";
-  errorCode = 403;
-  errorMessage = "Forbidden";
+  constructor(message = "Forbidden"){
+    super(message, 403);
+  }
 }

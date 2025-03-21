@@ -1,8 +1,8 @@
 import { Router } from "express";
-import { formData } from "../controller/login.controller";
+import { loginUser } from "../controller/login.controller";
 
 const loginRouter = Router();
 
-loginRouter.post("/", formData);
+loginRouter.post("/", loginUser);
 
 export default loginRouter;

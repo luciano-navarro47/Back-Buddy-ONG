@@ -25,7 +25,7 @@ export const createUser = async (req: Request, res: Response) => {
     await sendEmail(email, first_name);
     res.status(200).send(newUser);
   } catch (error) {
-    handleHttpError(res, "ERROR_CREATE_USER");
+    handleHttpError(res, error);
   }
 };
 
