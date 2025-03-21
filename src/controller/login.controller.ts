@@ -1,17 +1,23 @@
 import { Request, Response } from "express";
-import { User } from "../Model/User";
-import { handleHttpError, NotFoundError } from "../utils/error.handler";
+import { validateUserCredentials } from "../utils/auth.utils";
+import { generateToken } from "../utils/jwt.utils";
+import { handleHttpError } from "../utils/error.handler";
+
+
 
 export const loginUser = async (req: Request, res: Response) => {
   const { email, password } = req.body;
   try {
-    const user = await User.findOneBy({ email: email});
-    console.log("USERRRR: ", user);
-    console.log("PWWWW: ", password);
 
-    if(!user) throw new NotFoundError("User not found");
-    res.status(200).send(user);
-  } catch (error: any) {
+    const user = await validateUserCredentials(email, password);
+    const token = await generateToken(user);
+
+    return res.status(200).json({
+      message: "Login successful",
+      user: { id: user.id, email: user.email, role: user.role },
+      token: token,
+    });
+  } catch (error) {
     handleHttpError(res, error);
   }
 };

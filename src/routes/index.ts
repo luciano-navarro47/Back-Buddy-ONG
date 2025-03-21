@@ -4,7 +4,7 @@ import userRouter from "./user.router";
 import productRouter from "./product.router";
 import veterinaryRouter from "./veterinay.router";
 import donationRouter from "./donation.route";
-import loginRouter from "./login";
+import loginRouter from "./login.router";
 import loginAuth0Router from "./loginAuth0";
 
 const router = Router();
