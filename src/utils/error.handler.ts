@@ -1,5 +1,10 @@
 import { Response } from "express";
-import { stat } from "fs";
+
+export const getErrorMessage = (error: unknown) => {
+  if (error instanceof NotFoundError) return "Wrong Email";
+  if (error instanceof UnauthorizedError) return "Wrong password";
+  return "Unexpected error when logging in";
+};
 
 export const handleHttpError = (res: Response, error: unknown) => {
   if (!res.headersSent) {

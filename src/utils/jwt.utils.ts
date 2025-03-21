@@ -5,10 +5,14 @@ if (!JWT_SECRET) {
   throw new Error('JWT_SECRET must be defined in environment variables');
 }
 
-export const generateToken = async (user: any) => {
+export const generateToken = (user: any) => {
   return jwt.sign(
     { id: user.id, email: user.email, role: user.role },
     JWT_SECRET,
-    { expiresIn: '1m' }
+    { expiresIn: '24h' }
   );
 };
+
+export const verifyToken = (token: any) => {
+  return jwt.verify(token, JWT_SECRET);
+}
