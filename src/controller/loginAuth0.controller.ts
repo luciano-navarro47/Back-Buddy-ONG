@@ -1,22 +1,12 @@
-import { Request, Response } from "express";
-import { User } from "../Model/User";
+import { Response, Request } from "express";
 
-export const emailCheck = async (req: Request, res: Response) => {
-	const { email } = req.body;
+// WORK HERE TO CREATE CONTROLLERS
+// WORK HERE TO CREATE CONTROLLERS
 
-	try {
-		let user = await User.find({
-			where: [{ email: email }],
-			relations: ["pet"],
-		});
-		if (!user.length) {
-			return res.status(400).json("Email no econtrado");
-		} else {
-			res.status(200).send(user);
-		}
+export const login = () => {
 
-		console.log(user);
-	} catch (error) {
-		if (error) return res.status(400).json("Email no econtrado");
-	}
+};
+
+export const userProfile = () => {
+
 };
