@@ -11,7 +11,6 @@ export const loginUser = async (req: Request, res: Response) => {
     const user = await validateUserCredentials(email, password);
 
     const token = generateToken(user);
-    // console.log("TOKENNN: ", token);
     return res.status(200).json({
       message: "Login successful",
       user: { id: user.id, email: user.email, role: user.role },
