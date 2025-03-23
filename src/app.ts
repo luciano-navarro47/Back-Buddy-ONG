@@ -35,10 +35,8 @@ app.use("/", router);
 // Root Route to handle Auth0 when user is logged using third-party app
 app.get("/", (req, res) => {
   if (req.oidc.isAuthenticated()) {
-    // console.log("Logged in: ", req.oidc);
     res.redirect("auth/profile");
   }
-  console.log("Logged out");
   res.redirect("/login");
 });
 export default app;
