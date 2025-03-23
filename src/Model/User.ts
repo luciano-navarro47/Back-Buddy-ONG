@@ -63,7 +63,7 @@ export class User extends BaseEntity {
   customer?: Customer;
 
   @OneToMany(() => Pet, (pet) => pet.user)
-  pets!: Pet[];
+  pets?: Pet[];
 
   @CreateDateColumn()
   createdAt!: Date;

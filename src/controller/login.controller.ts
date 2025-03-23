@@ -1,21 +1,23 @@
 import { Request, Response } from "express";
-import { User } from "../Model/User";
+import { validateUserCredentials } from "../utils/auth.utils";
+import { generateToken } from "../utils/jwt.utils";
+import {
+  getErrorMessage,
+} from "../utils/error.handler";
 
-export const formData = async (req: Request, res: Response) => {
-  const { email, username } = req.body;
+export const loginUser = async (req: Request, res: Response) => {
+  const { email, password } = req.body;
   try {
-    const user = await User.find({
-      where: [{ email: email }],
-      relations: ["pet"],
-    });
+    const user = await validateUserCredentials(email, password);
 
-    if (user[0].username !== username)
-      return res.status(400).send("contraseña incorrecta");
-    else res.status(200).send(user);
+    const token = generateToken(user);
+    return res.status(200).json({
+      message: "Login successful",
+      user: { id: user.id, email: user.email, role: user.role },
+      token: token,
+    });
   } catch (error) {
-    if (error)
-      return res
-        .status(400)
-        .json("El Email ingresado no se encuentra registrado");
+    const errorMessage = getErrorMessage(error);
+    return res.status(401).json({ error: errorMessage });
   }
 };

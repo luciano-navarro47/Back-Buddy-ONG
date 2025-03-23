@@ -8,7 +8,7 @@ export const getAllPets = async (req: Request, res: Response) => {
     const pets = await Pet.find();
     res.status(200).send(pets);
   } catch (error) {
-    handleHttpError(res, "ERROR_GET_ALL_PETS");
+    handleHttpError(res, error);
   }
 };
 
@@ -16,10 +16,10 @@ export const getPetId = async (req: Request, res: Response) => {
   const { id } = req.params;
   try {
     const pet = await Pet.findOneBy({ id });
-    if (!pet) throw new NotFoundError(`No pet found with ID: ${id}`);
-    else res.status(200).send(pet);
+    if (!pet) throw new NotFoundError("Pet not found");
+    res.status(200).send(pet);
   } catch (error) {
-    handleHttpError(res, "ERROR_GET_PET");
+    handleHttpError(res, error);
   }
 };
 
@@ -46,7 +46,7 @@ export const createPet = async (req: Request, res: Response) => {
     await newPet.save();
     return res.status(200).send(newPet);
   } catch (error) {
-    if (error instanceof Error) handleHttpError(res, "ERROR_CREATE_PET");
+    handleHttpError(res, error);
   }
 };
 
@@ -55,12 +55,12 @@ export const updatePet = async (req: Request, res: Response) => {
 
   try {
     const pet = await Pet.findOneBy({ id: id });
-    if (!pet) throw new NotFoundError(`No pet found with ID: ${id}`);
+    if (!pet) throw new NotFoundError("Pet not found");
 
-    await Pet.update({ id: id }, req.body);
-    return res.sendStatus(204);
+    const updated = await Pet.update({ id: id }, req.body);
+    return res.status(200).send(updated);
   } catch (error) {
-    handleHttpError(res, "ERROR_UPDATE_PET");
+    handleHttpError(res, error);
   }
 };
 
@@ -68,11 +68,11 @@ export const deletePet = async (req: Request, res: Response) => {
   const { id } = req.params;
 
   try {
-    const result = await Pet.delete({ id: id });
-    return res.send(`User deleted`);
+    const pet = await Pet.delete({ id: id });
+    if(!pet) throw new NotFoundError("Pet not found");
+
+    return res.status(200).send("Pet deleted");
   } catch (error) {
-    if (error instanceof Error) {
-      handleHttpError(res, "ERROR_DELETE_PET");
-    }
+    handleHttpError(res, error);
   }
 };
