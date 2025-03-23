@@ -40,6 +40,7 @@ jobs:
       TEST_DB_NAME: ${{secrets.TEST_DB_NAME}}
       ACCESS_TOKEN_MP: ${{secrets.ACCESS_TOKEN_MP}}
       UNSPLASH_ACCESS_KEY: ${{secrets.UNSPLASH_ACCESS_KEY}}
+      JWT_SECRET: ${{ secrets.JWT_TOKEN }}
 
     steps:
       - name: Checkout repository
