@@ -4,9 +4,17 @@ import router from "./routes/index";
 import cors from "cors";
 import { auth } from "express-openid-connect";
 import * as dotenv from "dotenv";
+// import { cookie } from "express-validator";
 dotenv.config();
 
 const app = express();
+
+
+app.use(cors({
+  origin: "http://localhost:3000",
+  methods: "GET,POST,PUT,DELETE",
+  allowedHeaders: "Content-Type,Authorization",
+}));
 
 const config = {
   authRequired: false,
@@ -18,13 +26,12 @@ const config = {
   issuerBaseURL: process.env.AUTH0_ISSUER_BASE_URL!,
   authorizationParams: {
     response_type: "code id_token",
-    scope: "openid profile email"
-  },
+    scope: "openid profile email",
+    audience: "https://dev-oad6u8oyio8a678i.us.auth0.com/api/v2/"
+  }
 };
 
 app.use(auth(config));
-//options for cors midddleware
-app.use(cors());
 
 app.use(morgan("dev"));
 app.use(express.json());
@@ -33,10 +40,11 @@ app.use(express.json());
 app.use("/", router);
 
 // Root Route to handle Auth0 when user is logged using third-party app
-app.get("/", (req, res) => {
-  if (req.oidc.isAuthenticated()) {
-    res.redirect("auth/profile");
-  }
-  res.redirect("/login");
-});
+// app.get("/", (req, res) => {
+//   if (req.oidc.isAuthenticated()) {
+//     console.log("AUTH ?: ", req.oidc.isAuthenticated());
+//     res.redirect("auth/me");
+//   }
+//   res.redirect("/login");
+// });
 export default app;
