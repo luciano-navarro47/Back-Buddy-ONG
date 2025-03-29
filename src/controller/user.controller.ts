@@ -2,17 +2,17 @@ import { Request, Response } from "express";
 import { User, Status, Role } from "../Model/User";
 import { handleHttpError, NotFoundError } from "../utils/error.handler";
 import { encrypt } from "../utils/bcrypt.handler";
-import { verified } from "../utils/bcrypt.handler";
 import { sendEmail } from "../utils/sendEmail";
+import rateLimit from "express-rate-limit";
 
 export const createUser = async (req: Request, res: Response) => {
-  const { name, surname, email, username, phone, password } = req.body;
+  const { first_name, last_name, email, username, phone, password } = req.body;
   try {
     const passwordHashed = await encrypt(password);
 
     const newUser = new User();
-    newUser.name = name;
-    newUser.surname = surname;
+    newUser.first_name = first_name;
+    newUser.last_name = last_name;
     newUser.email = email;
     newUser.password = passwordHashed;
     newUser.username = username;
@@ -21,10 +21,10 @@ export const createUser = async (req: Request, res: Response) => {
     newUser.status = Status.ACTIVE;
 
     await newUser.save();
-	await sendEmail(email, name);
+    await sendEmail(email, first_name);
     res.status(200).send(newUser);
   } catch (error) {
-    handleHttpError(res, "ERROR_CREATE_USER");
+    handleHttpError(res, error);
   }
 };
 
@@ -82,31 +82,29 @@ export const setStatusUserInDB = async (req: Request, res: Response) => {
   }
 };
 
-export const loginCtrl = async (req: Request, res: Response) => {
-  const { email, password } = req.body;
-  try {
-    const FindUser = await User.find({
-      // select: [password],
-      where: [{ email: email }],
-      relations: ["pet"],
+export const checkUsernameRateLimiter = rateLimit({
+  windowMs: 1 * 60 * 1000,
+  max: 50,
+  message: {error: "Too many requests, try again later."},
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+export const checkUsername = async (req: Request, res: Response) => {
+  let { username } = req.query;
+
+  if (!username || typeof username !== "string") {
+    return res.status(400).json({
+      message: "The username is required and must be a valid string.",
     });
-    console.log(FindUser);
-    if (!FindUser.length) {
-      res.status(400).send(console.log("usuario no encontrado"));
-    }
-    if (FindUser.length) {
-      const emailDb = FindUser.map((e) => e.email);
-      const passwordDb = FindUser.map((p) => p.password);
+  }
 
-      for (let i = 0; i < passwordDb.length; i++) {
-        let resultPassword = await verified(password, passwordDb[i]);
+  try {
+    const existingUser = await User.findOne({ where: { username } });
 
-        if (emailDb[0] && resultPassword) return res.status(200).send(FindUser);
-        else res.status(400).send("contraseña incorrecta");
-      }
-    }
-  } catch {
-    res.status(400).send("usuario incorrecto");
+    return res.status(200).json({ available: !existingUser });
+  } catch (error) {
+    handleHttpError(res, "INTERNAL_SERVER_ERROR");
   }
 };
 

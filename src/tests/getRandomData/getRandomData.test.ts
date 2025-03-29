@@ -21,8 +21,8 @@ test("getPetRandomData should return mocked pet data", async () => {
 test("getUserRandomData should return mocked user data", async () => {
   const userData = await getUserRandomData();
 
-  expect(userData).toHaveProperty("name", "Test");
-  expect(userData).toHaveProperty("surname", "Test");
+  expect(userData).toHaveProperty("first_name", "Test");
+  expect(userData).toHaveProperty("last_name", "Test");
   expect(userData).toHaveProperty("email", "testuser@gmail.com");
   expect(userData).toHaveProperty("password", "testPassword00");
   expect(userData).toHaveProperty("username", "test00");

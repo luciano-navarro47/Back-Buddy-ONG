@@ -4,7 +4,7 @@ import {
   PrimaryGeneratedColumn,
   CreateDateColumn,
   UpdateDateColumn,
-  BaseEntity, // para poder hacer el create, findByOne, etc
+  BaseEntity,
   ManyToOne,
 } from "typeorm";
 
@@ -40,7 +40,6 @@ export enum Status {
 
 @Entity()
 export class Pet extends BaseEntity {
-  //uuid funcionando
   @PrimaryGeneratedColumn("uuid")
   id!: string;
 
@@ -82,11 +81,13 @@ export class Pet extends BaseEntity {
     enum: Object.values(Status),
   })
   status!: Status;
+
+  @ManyToOne(() => User, (user) => user.pets, { cascade: true })
+  user?: User;
+
   @CreateDateColumn()
   createdAt!: Date;
+
   @UpdateDateColumn()
   updatedAt!: Date;
-
-  @ManyToOne(() => User, (user) => user.pet, { cascade: true })
-  user?: User;
 }

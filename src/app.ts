@@ -2,14 +2,49 @@ import express from "express";
 import morgan from "morgan";
 import router from "./routes/index";
 import cors from "cors";
-import "./config/mercado-pago";
+import { auth } from "express-openid-connect";
+import * as dotenv from "dotenv";
+// import { cookie } from "express-validator";
+dotenv.config();
 
-const server = express();
+const app = express();
 
-server.use(express.json());
-server.use(morgan("dev"));
-server.use(cors());
 
-server.use("/", router);
+app.use(cors({
+  origin: "http://localhost:3000",
+  methods: "GET,POST,PUT,DELETE",
+  allowedHeaders: "Content-Type,Authorization",
+}));
 
-export default server;
+const config = {
+  authRequired: false,
+  auth0Logout: true,
+  secret: process.env.AUTH0_SECRET,
+  baseURL: process.env.BASE_URL || "http://localhost:3001",
+  clientID: process.env.AUTH0_CLIENT_ID!,
+  clientSecret: process.env.AUTH0_CLIENT_SECRET!,
+  issuerBaseURL: process.env.AUTH0_ISSUER_BASE_URL!,
+  authorizationParams: {
+    response_type: "code id_token",
+    scope: "openid profile email",
+    audience: "https://dev-oad6u8oyio8a678i.us.auth0.com/api/v2/"
+  }
+};
+
+app.use(auth(config));
+
+app.use(morgan("dev"));
+app.use(express.json());
+
+// API Routes
+app.use("/", router);
+
+// Root Route to handle Auth0 when user is logged using third-party app
+// app.get("/", (req, res) => {
+//   if (req.oidc.isAuthenticated()) {
+//     console.log("AUTH ?: ", req.oidc.isAuthenticated());
+//     res.redirect("auth/me");
+//   }
+//   res.redirect("/login");
+// });
+export default app;
