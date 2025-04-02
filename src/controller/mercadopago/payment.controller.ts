@@ -7,13 +7,11 @@ import {
 } from "../../config/mercado-pago";
 import { handleHttpError } from "../../utils/error.handler";
 import { Donation, Status } from "../../Model/Donation";
-import { UUID } from "typeorm/driver/mongodb/bson.typings";
-
-// import { UUID } from "typeorm/driver/mongodb/bson.typings";
 
 // const HOST = process.env.BASE_URL;
+const HOST = 'https://www.google.com';
 // const url = `${HOST}/payment-response`;
-const HOST = "https://www.google.com/";
+
 
 export const paymentResponse = async (req: Request, res: Response) => {
   // console.log("PAGO RECIBIDO: ", req.query);
@@ -66,34 +64,6 @@ export const donationPref = async (req: Request, res: Response) => {
     handleHttpError(res, error);
   }
 };
-
-// export const donationPayment = async (req: Request, res: Response) => {
-//   console.log("REQQQQ: req.body", req.body);
-//   const { title, unit_price } = req.body.donation;
-//   try {
-//     const body = {
-//       items: [
-//         {
-//           id: "1",
-//           title: title,
-//           unit_price: Number(unit_price),
-//           currency_id: "ARS",
-//           quantity: 1,
-//         },
-//       ],
-//       back_urls: {
-//         success: url,
-//         failure: url,
-//         pending: url,
-//       },
-//       auto_return: "approved",
-//     };
-
-//     // Work here
-//   } catch (error) {
-//     handleHttpError(res, error);
-//   }
-// };
 
 export const subscription = async (req: Request, res: Response) => {
   const { email } = req.body;
