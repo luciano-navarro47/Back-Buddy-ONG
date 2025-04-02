@@ -1,13 +1,17 @@
-import { MercadoPagoConfig } from "mercadopago";
+import { MercadoPagoConfig, Preference, Payment, PreApproval } from 'mercadopago';
 import * as dotenv from "dotenv";
 dotenv.config();
 
-if (!process.env.ACCESS_TOKEN_MP) {
+if (!process.env.MP_ACCESS_TOKEN) {
     throw new Error('MP_ACCESS_TOKEN is required');
-  }
+}
 
-const mercadoPagoClient = new MercadoPagoConfig({ 
-    accessToken: process.env.ACCESS_TOKEN_MP
+export const client = new MercadoPagoConfig({
+    accessToken: process.env.MP_ACCESS_TOKEN
 });
 
-export default mercadoPagoClient;
+export const payments = new Payment(client);
+
+export const preference = new Preference(client);
+
+export const preapproval = new PreApproval(client);
