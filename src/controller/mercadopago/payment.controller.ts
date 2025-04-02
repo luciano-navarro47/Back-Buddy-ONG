@@ -8,20 +8,17 @@ import {
 import { handleHttpError } from "../../utils/error.handler";
 import { Donation, Status } from "../../Model/Donation";
 
-// const HOST = process.env.BASE_URL;
-const HOST = 'https://www.google.com';
-// const url = `${HOST}/payment-response`;
-
+// const HOST = "https://www.google.com";
+const NGROK_HOST = "https://real-violently-rabbit.ngrok-free.app";
 
 export const paymentResponse = async (req: Request, res: Response) => {
-  // console.log("PAGO RECIBIDO: ", req.query);
-  console.log("PAGO RECIBIDO: ", req.body);
+  console.log("WEBHOOK RECIBIDO: ", req.body);
+  res.sendStatus(200);
 };
 
 export const donationPref = async (req: Request, res: Response) => {
   const { title, unit_price } = req.body.donation;
 
-  // console.log("REQ: ", req.body)
   try {
     const body = {
       items: [
@@ -34,33 +31,31 @@ export const donationPref = async (req: Request, res: Response) => {
         },
       ],
       back_urls: {
-        success: `${HOST}/donation-success`,
-        failure: `${HOST}/donation-failure`,
-        pending: `${HOST}/donation-pending`,
+        success: `${NGROK_HOST}/success`,
+        failure: `${NGROK_HOST}/failure`,
+        pending: `${NGROK_HOST}/pending`,
       },
       binary_mode: true,
       auto_return: "all",
-      notification_url: `${HOST}/webhook/mercadopago`
+      // notification_url: `${NGROK_HOST}/donation/webhooks/mercadopago`,
     };
-    
+
     const response = await preference.create({ body });
-    console.log("RESSSS: ", response);
 
     const donation = new Donation();
-    
+
     Object.assign(donation, {
       amount: Number(unit_price),
       title,
       collector_id: response.collector_id,
       client_id: response.client_id,
       status: Status.PENDING,
-      currency_id: response.items?.[0]?.currency_id || "ARS"
+      currency_id: response.items?.[0]?.currency_id || "ARS",
     });
 
     await donation.save();
     res.status(200).json(response.init_point);
   } catch (error) {
-    console.log("ERRR: ", error);
     handleHttpError(res, error);
   }
 };

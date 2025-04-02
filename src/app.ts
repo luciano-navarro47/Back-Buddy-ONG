@@ -9,6 +9,10 @@ dotenv.config();
 
 const app = express();
 
+// app.get('/', (req, res) => {
+//   res.send('<h1>Servidor en ejecución</h1><p>Si ves este mensaje, ngrok está funcionando correctamente.</p>');
+// });
+
 
 app.use(cors({
   origin: "http://localhost:3000",
