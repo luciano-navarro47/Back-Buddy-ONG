@@ -38,7 +38,7 @@ jobs:
       DB_PASSWORD: ${{secrets.POSTGRES_PASSWORD}}
       DB_NAME: ${{secrets.DB_NAME}}
       TEST_DB_NAME: ${{secrets.TEST_DB_NAME}}
-      ACCESS_TOKEN_MP: ${{secrets.ACCESS_TOKEN_MP}}
+      MP_ACCESS_TOKEN: ${{secrets.ACCESS_TOKEN_MP}}
       UNSPLASH_ACCESS_KEY: ${{secrets.UNSPLASH_ACCESS_KEY}}
       JWT_SECRET: ${{ secrets.JWT_SECRET }}
       AUTH0_SECRET: ${{ secrets.AUTH0_SECRET }}
