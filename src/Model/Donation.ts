@@ -13,9 +13,9 @@ import {
 import { Customer } from "./Customer";
 
 export enum Status {
-  SUCCESS = "success",
+  APPROVED = "approved",
+  PENDING = "pending",
   FAILURE = "failure",
-  PENDING = "pending"
 }
 
   
@@ -34,11 +34,17 @@ export enum Status {
     @Column({ nullable: true })
     title?: string;
 
-    @Column("bigint")
-    collector_id!: number;
+    @Column({
+      nullable: true,
+      type: "bigint"
+    })
+    collector_id?: number;
 
-    @Column("bigint")
-    client_id!: number;
+    @Column({
+      nullable: true,
+      type: "bigint"
+    })
+    client_id?: number;
 
     @Column({
       type: "enum",
@@ -46,6 +52,18 @@ export enum Status {
       default: Status.PENDING
     })
     status!: string;
+
+    @Column({
+      nullable: true,
+      type: "varchar"
+    })
+    preference_id?: string;
+
+    @Column({ 
+      nullable: true,
+      type: "bigint",
+    })
+    payment_id?: number;
 
     @ManyToOne(() => Customer, (customer) => customer.donations)
     @JoinColumn({ name: "donations_id" })
