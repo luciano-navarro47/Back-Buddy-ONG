@@ -1,9 +1,16 @@
 import { Router } from "express";
-import { donation, subscription } from "../controller/mercadopago/payment.controller";
+import {
+  donationPref,
+  subscription,
+//   donationPayment,
+  paymentResponse,
+} from "../controller/mercadopago/payment.controller";
 
 const donationRouter = Router();
 
-donationRouter.post('/', donation);
+donationRouter.post("/", donationPref);
+donationRouter.get("/payment-response", paymentResponse);
+// donationRouter.post('/', donationPayment);
 donationRouter.post("/subscription", subscription);
 
 export default donationRouter;

@@ -12,6 +12,12 @@ import {
 
 import { Customer } from "./Customer";
 
+export enum Status {
+  SUCCESS = "success",
+  FAILURE = "failure",
+  PENDING = "pending"
+}
+
   
   @Entity()
   export class Donation extends BaseEntity {
@@ -27,6 +33,19 @@ import { Customer } from "./Customer";
 
     @Column({ nullable: true })
     title?: string;
+
+    @Column("bigint")
+    collector_id!: number;
+
+    @Column("bigint")
+    client_id!: number;
+
+    @Column({
+      type: "enum",
+      enum: Object.values(Status),
+      default: Status.PENDING
+    })
+    status!: string;
 
     @ManyToOne(() => Customer, (customer) => customer.donations)
     @JoinColumn({ name: "donations_id" })
