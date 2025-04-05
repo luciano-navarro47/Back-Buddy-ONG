@@ -20,6 +20,8 @@ import { CardSubscription } from "./CardSubscription";
   export enum SubscriptionStatus {
     PENDING = "pending",
     AUTHORIZED = "authorized",
+    CANCELLED = "cancelled",
+    FAILURE = "failure"
   }
   
   export enum FrequencyType {
@@ -46,12 +48,12 @@ import { CardSubscription } from "./CardSubscription";
   
     @Column({ type: "bigint", nullable: true })
     payer_id?: number;
-  
-    @Column({ nullable: true })
-    back_url?: string;
-  
-    @Column({ nullable: true })
-    init_point?: string;
+
+    @Column({
+      type: "varchar",
+      nullable: true
+    })
+    subscription_id?: string;
   
     @Column({ type: "enum", enum: SubscriptionStatus, default: SubscriptionStatus.PENDING })
     status!: SubscriptionStatus;
@@ -78,12 +80,6 @@ import { CardSubscription } from "./CardSubscription";
   
     @Column({ nullable: true })
     currency_id?: string;
-  
-    @Column({ type: "timestamp", nullable: true })
-    start_date?: Date;
-  
-    @Column({ type: "timestamp", nullable: true })
-    end_date?: Date;
   
     @Column({ type: "timestamp", nullable: true })
     next_payment_date?: Date;

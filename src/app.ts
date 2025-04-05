@@ -18,6 +18,7 @@ app.use(cors({
   origin: "http://localhost:3000",
   methods: "GET,POST,PUT,DELETE",
   allowedHeaders: "Content-Type,Authorization",
+  credentials: true
 }));
 
 const config = {
@@ -43,12 +44,4 @@ app.use(express.json());
 // API Routes
 app.use("/", router);
 
-// Root Route to handle Auth0 when user is logged using third-party app
-// app.get("/", (req, res) => {
-//   if (req.oidc.isAuthenticated()) {
-//     console.log("AUTH ?: ", req.oidc.isAuthenticated());
-//     res.redirect("auth/me");
-//   }
-//   res.redirect("/login");
-// });
 export default app;
