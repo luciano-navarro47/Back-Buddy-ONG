@@ -1,5 +1,4 @@
 import { DataSource } from "typeorm";
-import * as dotenv from "dotenv";
 import { Product } from "../Model/Product";
 import { User } from "../Model/User";
 import { Pet } from "../Model/Pet";
@@ -9,6 +8,7 @@ import { Card } from "../Model/Card";
 import { Subscription } from "../Model/Subscription";
 import { CardSubscription } from "../Model/CardSubscription";
 import { Donation } from "../Model/Donation";
+import * as dotenv from "dotenv";
 dotenv.config();
 
 const isTestEnv = process.env.NODE_ENV === 'test';

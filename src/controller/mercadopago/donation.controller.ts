@@ -32,13 +32,11 @@ export const createDonation = async (req: Request, res: Response) => {
         failure: `${url}/failure`,
         pending: `${url}/pending`,
       },
-      // auto_return: "approved",
       notification_url: `${url}/webhooks/notifications`,
       external_reference: donation.id,
     };
 
     const response = await preference.create({ body });
-    // console.log("PREFERENCE: ", response);
     donation.collector_id = response?.collector_id;
     donation.client_id = Number(response.client_id);
     donation.currency_id = response.items?.[0]?.currency_id || "ARS";

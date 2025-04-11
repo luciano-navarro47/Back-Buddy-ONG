@@ -7,6 +7,7 @@ import {
   SubscriptionStatus,
 } from "../../Model/Subscription";
 import AppDataSource from "../../config/data-source";
+import { ExtendedPreApprovalResponse } from "../../types/mercadopago";
 
 const url = process.env.NGROK_DOM;
 export const createSubscription = async (req: Request, res: Response) => {
