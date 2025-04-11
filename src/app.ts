@@ -1,18 +1,15 @@
-import express from "express";
-import morgan from "morgan";
-import router from "./routes/index";
 import cors from "cors";
+import morgan from "morgan";
+import express from "express";
+import cookieParser from 'cookie-parser';
 import { auth } from "express-openid-connect";
-import * as dotenv from "dotenv";
-// import { cookie } from "express-validator";
-dotenv.config();
+import router from "./routes/index";
+// import * as dotenv from "dotenv";
+// dotenv.config();
 
 const app = express();
 
-// app.get('/', (req, res) => {
-//   res.send('<h1>Servidor en ejecución</h1><p>Si ves este mensaje, ngrok está funcionando correctamente.</p>');
-// });
-
+app.use(cookieParser());
 
 app.use(cors({
   origin: "http://localhost:3000",
@@ -21,7 +18,7 @@ app.use(cors({
   credentials: true
 }));
 
-const config = {
+const auth0Config = {
   authRequired: false,
   auth0Logout: true,
   secret: process.env.AUTH0_SECRET,
@@ -36,7 +33,7 @@ const config = {
   }
 };
 
-app.use(auth(config));
+app.use(auth(auth0Config));
 
 app.use(morgan("dev"));
 app.use(express.json());

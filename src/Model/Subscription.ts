@@ -8,7 +8,6 @@ import {
     DeleteDateColumn,
     JoinColumn,
     BaseEntity,
-    OneToOne,
     ManyToMany,
     OneToMany,
   } from "typeorm";

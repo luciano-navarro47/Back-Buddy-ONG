@@ -1,10 +1,8 @@
 import { Router } from "express";
-import { subscriptionNotification } from "../controller/webhooks/mpSubscription.controller";
-import { paymentResponse } from "../controller/webhooks/mpNotifications.controller";
+import { notificationsRecieved } from "../controller/mercadopago/webhooks/notifications.controller";
 
 const webhookRouter = Router();
 
-webhookRouter.post("/mpNotifications", paymentResponse)
-webhookRouter.post("/mpSubscriptions", subscriptionNotification);
+webhookRouter.post("/notifications", notificationsRecieved)
 
 export default webhookRouter;
