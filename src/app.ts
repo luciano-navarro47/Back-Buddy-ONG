@@ -1,22 +1,24 @@
-import express from "express";
-import morgan from "morgan";
-import router from "./routes/index";
 import cors from "cors";
+import morgan from "morgan";
+import express from "express";
+import cookieParser from 'cookie-parser';
 import { auth } from "express-openid-connect";
-import * as dotenv from "dotenv";
-// import { cookie } from "express-validator";
-dotenv.config();
+import router from "./routes/index";
+// import * as dotenv from "dotenv";
+// dotenv.config();
 
 const app = express();
 
+app.use(cookieParser());
 
 app.use(cors({
   origin: "http://localhost:3000",
   methods: "GET,POST,PUT,DELETE",
   allowedHeaders: "Content-Type,Authorization",
+  credentials: true
 }));
 
-const config = {
+const auth0Config = {
   authRequired: false,
   auth0Logout: true,
   secret: process.env.AUTH0_SECRET,
@@ -31,7 +33,7 @@ const config = {
   }
 };
 
-app.use(auth(config));
+app.use(auth(auth0Config));
 
 app.use(morgan("dev"));
 app.use(express.json());
@@ -39,12 +41,4 @@ app.use(express.json());
 // API Routes
 app.use("/", router);
 
-// Root Route to handle Auth0 when user is logged using third-party app
-// app.get("/", (req, res) => {
-//   if (req.oidc.isAuthenticated()) {
-//     console.log("AUTH ?: ", req.oidc.isAuthenticated());
-//     res.redirect("auth/me");
-//   }
-//   res.redirect("/login");
-// });
 export default app;

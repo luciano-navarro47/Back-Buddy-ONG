@@ -4,8 +4,10 @@ import userRouter from "./user.router";
 import productRouter from "./product.router";
 import veterinaryRouter from "./veterinay.router";
 import donationRouter from "./donation.route";
+import subscriptionRouter from "./subscription.route";
 import loginRouter from "./login.router";
 import auth0Router from "./auth0.router";
+import webhookRouter from "./webhook.routes";
 
 const router = Router();
 
@@ -16,5 +18,7 @@ router.use("/user", userRouter);
 router.use("/products", productRouter);
 router.use("/veterinary", veterinaryRouter);
 router.use("/donation", donationRouter);
+router.use("/subscription", subscriptionRouter);
+router.use("/webhooks", webhookRouter);
 
 export default router;

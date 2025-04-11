@@ -10,14 +10,6 @@ export const transporter = nodemailer.createTransport({
   },
 });
 
-// transporter.verify(function (error, success) {
-//   if (error) {
-//     console.log("ERROR: ", error);
-//   } else {
-//     console.log("Server is ready to take our messages", success);
-//   }
-// });
-
 export const sendEmail = async (email: string, name: string) => {
   try {
     await transporter.sendMail({

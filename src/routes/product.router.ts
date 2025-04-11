@@ -7,11 +7,12 @@ import {
 	getProductId,
 	updateProduct,
 } from "../controller/product.controller";
+import { authenticateJWT } from "../middlewares/validators/auth.middleware";
 
 const productRouter = Router();
 
 productRouter.get("/", getAllProducts);
-productRouter.post("/", createProduct);
+productRouter.post("/", authenticateJWT, createProduct);
 productRouter.get("/:id", getProductId);
 productRouter.put("/:id", updateProduct);
 productRouter.delete("/:id", deleteProduct)
