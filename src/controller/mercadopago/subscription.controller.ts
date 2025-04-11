@@ -16,13 +16,13 @@ export const createSubscription = async (req: Request, res: Response) => {
     const subscription = new Subscription();
     subscription.payer_email = email;
     subscription.transaction_amount = amount;
-    subscription.reason = "Suscripto a colaboración mensual.";
+    subscription.reason = "Colaboración mensual";
     subscription.status = SubscriptionStatus.PENDING;
 
     const frequency = "months";
     const body = {
       payer_email: email,
-      reason: `Te suscribirás a una colaboración mensual de: `,
+      reason: `Te suscribirás a una colaboración mensual de ${amount}`,
       auto_recurring: {
         frequency: 1,
         frequency_type: frequency,
@@ -35,8 +35,8 @@ export const createSubscription = async (req: Request, res: Response) => {
       external_reference: subscription.id,
     };
 
-    const newPreapproval = await preapproval.create({ body });
-    console.log("Preapproval: ", newPreapproval);
+    const newPreapproval = await preapproval.create({ body }) as ExtendedPreApprovalResponse;
+
     subscription.payer_id = newPreapproval.payer_id;
     subscription.frequency = newPreapproval.auto_recurring?.frequency;
     subscription.frequency_type = newPreapproval.auto_recurring
