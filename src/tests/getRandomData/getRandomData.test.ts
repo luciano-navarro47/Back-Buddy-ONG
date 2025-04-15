@@ -35,7 +35,7 @@ test("getProductRandomData should return mocked product data", async () => {
   const userData = await getProductRandomData();
 
   expect(userData).toHaveProperty("category", "test-category");
-  expect(userData).toHaveProperty("image", "https://fakeimage.com/image.jpg");
+  expect(userData).toHaveProperty("image_url", "https://fakeimage.com/image.jpg");
   expect(userData).toHaveProperty("name", "Test Product");
   expect(userData).toHaveProperty("description", "Test Description");
   expect(userData).toHaveProperty("price", 10);

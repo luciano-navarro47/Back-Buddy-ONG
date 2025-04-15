@@ -1,8 +1,8 @@
 import { faker } from "@faker-js/faker";
 
-import { Category } from "../Model/Product";
-import { Role, Status as UserStatus } from "../Model/User";
-import { Size, Specie, Sex, Age, Status as PetStatus } from "../Model/Pet";
+import { Category } from "../entities/Product";
+import { Role, Status as UserStatus } from "../entities/User";
+import { Size, Specie, Sex, Age, Status as PetStatus } from "../entities/Pet";
 import * as dotenv from "dotenv";
 dotenv.config();
 
@@ -27,16 +27,16 @@ export const getProductRandomData = async (): Promise<{
   let description = "";
 
   try {
-    const query =
-      category === "otros"
-        ? "cat toys"
-        : category === "indumentaria"
-        ? "dress"
-        : category === "tazas"
-        ? "cup"
-        : "food";
+    // const query = 
+    //   category === "otros"
+    //     ? "cat toys"
+    //     : category === "indumentaria"
+    //     ? "dress"
+    //     : category === "tazas"
+    //     ? "cup"
+    //     : "food";
 
-    const url = `https://api.unsplash.com/photos/random?query=${query}&client_id=${UNSPLASH_ACCESS_KEY}`;
+    const url = `https://api.unsplash.com/photos/random?query=${category}&client_id=${UNSPLASH_ACCESS_KEY}`;
     const response = await fetch(url);
     const data = await response.json();
     description = data.alt_description || faker.commerce.productDescription();

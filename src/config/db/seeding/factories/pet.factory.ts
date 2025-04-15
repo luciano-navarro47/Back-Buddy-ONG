@@ -1,7 +1,7 @@
 import { Seeder } from "@jorgebodega/typeorm-seeding";
 import { DataSource } from "typeorm/data-source";
 
-import { Pet } from "../../../../Model/Pet";
+import { Pet } from "../../../../entities/Pet";
 import { getPetRandomData } from "../../../../utils/getRandomData";
 
 export default class PetSeeder extends Seeder {

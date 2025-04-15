@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { Product } from "../Model/Product";
+import { Product } from "../entities/Product";
 import {
   NotFoundError,
   handleHttpError,
@@ -22,16 +22,16 @@ export const getAllProducts = async (req: Request, res: Response) => {
 };
 
 export const createProduct = async (req: Request, res: Response) => {
-  const { name, description, image, price, stock, category } = req.body;
+  const { name, description, image_url, price, stock, category } = req.body;
   try {
-    if (!name || !price || !image || !stock || !category) {
+    if (!name || !price || !image_url || !stock || !category) {
       throw new BadRequestError("Missing fields");
     }
 
     const newProduct = new Product();
     newProduct.category = category;
     newProduct.name = name;
-    newProduct.image = image;
+    newProduct.image_url = image_url;
     newProduct.description = description;
     newProduct.price = price;
     newProduct.stock = stock;

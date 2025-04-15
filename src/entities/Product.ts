@@ -8,15 +8,22 @@ import {
 } from "typeorm";
 
 export enum Category {
-  OTROS = "otros",
-  INDUMENTARIA = "indumentaria",
-  TAZAS = "tazas",
-  ALIMENTOS = "alimentos",
+  FOOD = "food",
+  TOYS = "toys",
+  CLOTHING = "clothing",
+  ACCESSORIES = "accessories",
+  BEDS = "beds",
+  HYGIENE = "hygiene",
+  HEALTHCARE = "healthcare",
+  BOWLS = "bowls",
+  CARRIERS = "carriers",
+  LITTER = "litter",
+  OTHER = "other",
 }
 
 @Entity()
 export class Product extends BaseEntity {
-  @Column({
+  @Column({ 
     type: "enum",
     enum: Object.values(Category),
   })
@@ -26,15 +33,15 @@ export class Product extends BaseEntity {
   id!: string;
 
   @Column()
-  image!: string;
+  image_url!: string;
 
   @Column()
   name!: string;
 
   @Column()
-  description?: string; //se puede poner ? en vex de !
+  description?: string;
 
-  @Column()
+  @Column("decimal", { precision: 7, scale: 2 })
   price!: number;
 
   @Column()

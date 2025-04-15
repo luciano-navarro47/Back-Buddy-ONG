@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { Veterinary } from "../Model/Veterinary";
+import { Veterinary } from "../entities/Veterinary";
 
 export const createVeterinary = async (req: Request, res: Response) => {
   const { name, description, email, image, phone, address, location } =

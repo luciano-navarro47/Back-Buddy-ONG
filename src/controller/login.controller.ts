@@ -4,7 +4,7 @@ import { generateToken } from "../utils/jwt.utils";
 import {
   getErrorMessage,
 } from "../utils/error.handler";
-import { User } from "../Model/User";
+import { User } from "../entities/User";
 
 export const loginUser = async (req: Request, res: Response) => {
   const { email, password } = req.body;

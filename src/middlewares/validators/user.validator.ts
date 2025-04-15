@@ -1,6 +1,6 @@
 import { check, validationResult, CustomValidator } from "express-validator";
 import { Request, Response, NextFunction } from "express";
-import { User } from "../../Model/User";
+import { User } from "../../entities/User";
 
 const isValidEmail: CustomValidator = async (email) => {
   const result = await User.find({ where: [{ email: email }] });

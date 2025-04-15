@@ -29,7 +29,7 @@ export const getUserRandomData = jest.fn(() =>
 export const getProductRandomData = jest.fn(()=> 
       Promise.resolve({
         category: "test-category",
-        image: img,
+        image_url: img,
         name: "Test Product",
         description: "Test Description",
         price: 10,

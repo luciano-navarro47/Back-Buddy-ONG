@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { payments, preference } from "../../config/mercado-pago";
 import { handleHttpError } from "../../utils/error.handler";
-import { Donation, Status } from "../../Model/Donation";
+import { Donation, Status } from "../../entities/Donation";
 import AppDataSource from "../../config/data-source";
 
 const url = process.env.NGROK_DOM;
