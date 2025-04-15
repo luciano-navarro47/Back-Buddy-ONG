@@ -2,7 +2,7 @@ import { faker } from "@faker-js/faker";
 import { Seeder } from "@jorgebodega/typeorm-seeding";
 import { DataSource } from "typeorm/data-source";
 
-import { Category, Product } from "../../../../Model/Product";
+import { Category, Product } from "../../../../entities/Product";
 import { getProductRandomData } from "../../../../utils/getRandomData";
 
 export default class ProductSeeder extends Seeder {

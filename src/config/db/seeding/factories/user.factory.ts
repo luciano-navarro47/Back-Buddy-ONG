@@ -1,7 +1,7 @@
 import { Seeder } from "@jorgebodega/typeorm-seeding";
 import { DataSource } from "typeorm/data-source";
 
-import { User } from "../../../../Model/User";
+import { User } from "../../../../entities/User";
 import { getUserRandomData } from "../../../../utils/getRandomData";
 
 export default class UserSeeder extends Seeder {

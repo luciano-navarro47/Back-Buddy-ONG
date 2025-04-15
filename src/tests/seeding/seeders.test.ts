@@ -1,9 +1,9 @@
 import { DataSource } from "typeorm";
 
-import { Pet } from "../../Model/Pet";
-import { Product } from "../../Model/Product";
-import { Veterinary } from "../../Model/Veterinary";
-import { User } from "../../Model/User";
+import { Pet } from "../../entities/Pet";
+import { Product } from "../../entities/Product";
+import { Veterinary } from "../../entities/Veterinary";
+import { User } from "../../entities/User";
 import PetSeeder from "../../config/db/seeding/factories/pet.factory";
 import ProductSeeder from "../../config/db/seeding/factories/product.factory";
 import UserSeeder from "../../config/db/seeding/factories/user.factory";
@@ -70,7 +70,7 @@ describe("ProductSeeder", () => {
 
     savedProducts.forEach((product: Product) => {
       expect(product).toHaveProperty("category");
-      expect(product).toHaveProperty("image");
+      expect(product).toHaveProperty("image_url");
       expect(product).toHaveProperty("name");
       expect(product).toHaveProperty("description");
       expect(product).toHaveProperty("price");

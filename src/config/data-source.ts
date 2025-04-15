@@ -1,13 +1,13 @@
 import { DataSource } from "typeorm";
-import { Product } from "../Model/Product";
-import { User } from "../Model/User";
-import { Pet } from "../Model/Pet";
-import { Veterinary } from "../Model/Veterinary";
-import { Customer } from "../Model/Customer";
-import { Card } from "../Model/Card";
-import { Subscription } from "../Model/Subscription";
-import { CardSubscription } from "../Model/CardSubscription";
-import { Donation } from "../Model/Donation";
+import { Product } from "../entities/Product";
+import { User } from "../entities/User";
+import { Pet } from "../entities/Pet";
+import { Veterinary } from "../entities/Veterinary";
+import { Customer } from "../entities/Customer";
+import { Card } from "../entities/Card";
+import { Subscription } from "../entities/Subscription";
+import { CardSubscription } from "../entities/CardSubscription";
+import { Donation } from "../entities/Donation";
 import * as dotenv from "dotenv";
 dotenv.config();
 

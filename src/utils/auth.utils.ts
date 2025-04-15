@@ -1,4 +1,4 @@
-import { User } from "../Model/User";
+import { User } from "../entities/User";
 import { verify } from "./bcrypt.handler";
 import { NotFoundError, UnauthorizedError } from "../utils/error.handler";
 

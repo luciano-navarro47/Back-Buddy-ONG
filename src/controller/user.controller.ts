@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { User, Status, Role } from "../Model/User";
+import { User, Status, Role } from "../entities/User";
 import { handleHttpError, NotFoundError } from "../utils/error.handler";
 import { encrypt } from "../utils/bcrypt.handler";
 import { sendEmail } from "../utils/sendEmail";

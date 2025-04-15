@@ -1,8 +1,8 @@
 import dataSource from "./data-source";
-import { Pet } from "../Model/Pet";
-import { Product } from "../Model/Product";
-import { User } from "../Model/User";
-import { Veterinary } from "../Model/Veterinary";
+import { Pet } from "../entities/Pet";
+import { Product } from "../entities/Product";
+import { User } from "../entities/User";
+import { Veterinary } from "../entities/Veterinary";
 import PetSeeder from "./db/seeding/factories/pet.factory";
 import ProductSeeder from "./db/seeding/factories/product.factory";
 import UserSeeder from "./db/seeding/factories/user.factory";

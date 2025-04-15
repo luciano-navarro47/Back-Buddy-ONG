@@ -2,7 +2,7 @@ import { Seeder } from "@jorgebodega/typeorm-seeding";
 import { DataSource } from "typeorm/data-source";
 
 import { getVeterinaryRandomData } from "../../../../utils/getRandomData";
-import { Veterinary } from "../../../../Model/Veterinary";
+import { Veterinary } from "../../../../entities/Veterinary";
 
 export default class VeterinarySeeder extends Seeder {
   async run(dataSource: DataSource): Promise<void> {

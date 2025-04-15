@@ -5,7 +5,7 @@ import {
   FrequencyType,
   Subscription,
   SubscriptionStatus,
-} from "../../Model/Subscription";
+} from "../../entities/Subscription";
 import AppDataSource from "../../config/data-source";
 import { ExtendedPreApprovalResponse } from "../../types/mercadopago";
 

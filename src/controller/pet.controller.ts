@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import { Pet } from "../Model/Pet";
-import { User } from "../Model/User";
+import { Pet } from "../entities/Pet";
+import { User } from "../entities/User";
 import { NotFoundError, handleHttpError } from "../utils/error.handler";
 
 export const getAllPets = async (req: Request, res: Response) => {

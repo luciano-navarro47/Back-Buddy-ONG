@@ -1,5 +1,5 @@
 import { Repository } from "typeorm";
-import { Product } from "../../../Model/Product";
+import { Product } from "../../../entities/Product";
 import AppDataSource from "../../../config/data-source";
 import {
   createProduct,
@@ -63,7 +63,7 @@ describe("Create Product", () => {
       body: {
         name: "Test Name",
         description: "Test Description",
-        image: "https://fakeimage.com/image.jpg",
+        image_url: "https://fakeimage.com/image.jpg",
         price: 9999,
         stock: 9999,
         category: "Test category",
