@@ -1,9 +1,12 @@
-import { Router } from "express";
-import { requiresAuth } from "express-openid-connect";
-import { registerAuth0User } from "../controller/auth0.controller";
+// import { Router } from "express";
+// import { upsertAuth0User } from "../controller/auth0.controller";
+// import {
+//   oauthUserValidator,
+//   validateRequest,
+// } from "../middlewares/validators/user.validator";
 
-const auth0Router = Router();
+// const auth0Router = Router();
 
-auth0Router.get("/register", requiresAuth, registerAuth0User);
 
-export default auth0Router;
+
+// export default auth0Router;

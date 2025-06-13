@@ -1,26 +1,28 @@
 import { Response, Request } from "express";
+import { Status, User } from "../entities/User";
 import { handleHttpError } from "../utils/error.handler";
-import { verifyToken } from "../utils/jwt.utils";
-export const registerAuth0User = async (req: Request, res: Response) => {
-    try {
-        console.log("WE CAN SAVE AUTH0 USER", req.body);
-        // const authHeader = req.headers.authorization;
-        
-        // if(!authHeader && !authHeader?.startsWith("Bearer ")){
-        //   return res.status(401).json({ message: "Unauthorized." });
-        // }
+// import { verifyToken } from "../utils/jwt.utils";
+export const upsertAuth0User = async (req: Request, res: Response) => {
+  const { first_name, last_name, email, username, auth0Sub, role } = req.body;
 
-        // const token = authHeader.split(" ")[1]
-        // const decoded = verifyToken(token);
-        // console.log("DECODED: ", decoded);
+  try {
+    let user = await User.findOneBy({ email });
 
-        // if(!decoded || typeof decoded === "string") {
-        //   return res.status(401).json({ message: "Invalid token." });
-        // }
+    if (!user) {
+      user = new User();
+      user.first_name = first_name;
+      user.last_name = last_name;
+      user.email = email;
+      user.username = username;
+      user.auth0Sub = auth0Sub;
+      user.role = role;
+      user.status = Status.ACTIVE;
 
-        // res.status(200).json({ user: decoded });
-
-    } catch (error) {
-      handleHttpError(res, error);
+      await user.save();
     }
-}
+
+    res.status(200).json(user);
+  } catch (error) {
+    handleHttpError(res, error);
+  }
+};
