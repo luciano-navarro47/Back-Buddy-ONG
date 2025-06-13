@@ -4,8 +4,8 @@ import express from "express";
 import cookieParser from 'cookie-parser';
 import { auth } from "express-openid-connect";
 import router from "./routes/index";
-// import * as dotenv from "dotenv";
-// dotenv.config();
+import * as dotenv from "dotenv";
+dotenv.config();
 
 const app = express();
 

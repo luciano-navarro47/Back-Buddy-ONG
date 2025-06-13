@@ -37,14 +37,17 @@ export class User extends BaseEntity {
   @Column()
   email!: string;
 
-  @Column()
-  password!: string;
+  @Column({nullable: true})
+  password?: string;
 
-  @Column()
-  username!: string;
+  @Column({nullable: true})
+  username?: string;
 
-  @Column({ type: "bigint" })
-  phone!: string;
+  @Column({ nullable: true, type: "bigint" })
+  phone?: string;
+
+  @Column({nullable: true})
+  auth0Sub? : string;
 
   @Column({
     type: "enum",
