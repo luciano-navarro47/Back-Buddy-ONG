@@ -1,4 +1,13 @@
 import { DataSource } from "typeorm";
+import { Product } from "../entities/Product";
+import { User } from "../entities/User";
+import { Pet } from "../entities/Pet";
+import { Veterinary } from "../entities/Veterinary";
+import { Customer } from "../entities/Customer";
+import { Card } from "../entities/Card";
+import { Subscription } from "../entities/Subscription";
+import { CardSubscription } from "../entities/CardSubscription";
+import { Donation } from "../entities/Donation";
 import * as dotenv from "dotenv";
 dotenv.config();
 
@@ -12,7 +21,7 @@ const AppDataSource = new DataSource({
 	password: process.env.DB_PASSWORD,
 	database: isTestEnv ? process.env.TEST_DB_NAME : process.env.DB_NAME,
 	synchronize: process.env.NODE_ENV !== 'production',
-	entities: ["src/entities/*.ts"],
+	entities: [Product, User, Pet, Veterinary, Customer, Card, Subscription, Donation, CardSubscription],
 	migrations: ["dist/migrations/*.js"],
 	subscribers: isTestEnv ? ["dist/subscribers/*.js"] : ["src/subscribers/*.ts"],
   });
