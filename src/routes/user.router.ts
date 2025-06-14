@@ -14,12 +14,13 @@ import {
   userValidator,
   validateRequest,
 } from "../middlewares/validators/user.validator";
-import { upsertAuth0User } from "../controller/auth0.controller";
+import { getAuth0User, upsertAuth0User } from "../controller/auth0.controller";
 
 const userRouter = Router();
 
 userRouter.get("/", getAllUsers);
 userRouter.get("/check-username", checkUsernameRateLimiter, checkUsername);
+userRouter.get("/oauth-user", getAuth0User);
 userRouter.get("/:id", getUserId);
 userRouter.put("/:id", updateUser);
 userRouter.put("/setStatusUser/:id", setStatusUserInDB);
