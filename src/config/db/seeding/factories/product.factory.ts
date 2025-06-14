@@ -1,32 +1,30 @@
-import { faker } from "@faker-js/faker";
 import { Seeder } from "@jorgebodega/typeorm-seeding";
 import { DataSource } from "typeorm/data-source";
 
-import { Category, Product } from "../../../../entities/Product";
+import { Product } from "../../../../entities/Product";
 import { getProductRandomData } from "../../../../utils/getRandomData";
 
 export default class ProductSeeder extends Seeder {
-    async run(dataSource: DataSource): Promise<void> {
-        
-        const products : Product[] = [];
+  async run(dataSource: DataSource): Promise<void> {
+    const products: Product[] = [];
 
-        for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < 10; i++) {
+      const product = new Product();
+      const { category, image_url, name, description, price, stock } =
+        await getProductRandomData();
 
-            const product = new Product();
-            const { category, image, name, description, price, stock } = await getProductRandomData();
+      Object.assign(product, {
+        category,
+        image_url,
+        name,
+        description,
+        price,
+        stock,
+      });
 
-            Object.assign(product, {
-                category,
-                image,
-                name,
-                description,
-                price,
-                stock
-            });
-
-            products.push(product);
-        }
-
-        await dataSource.createEntityManager().save<Product>(products);
+      products.push(product);
     }
+
+    await dataSource.createEntityManager().save<Product>(products);
+  }
 }
