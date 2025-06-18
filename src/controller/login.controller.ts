@@ -12,7 +12,6 @@ export const loginUser = async (req: Request, res: Response) => {
     const user : User = await validateUserCredentials(email, password);
 
     const token: string = generateToken(user);
-
     res.cookie('jwt', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "test",
@@ -22,6 +21,7 @@ export const loginUser = async (req: Request, res: Response) => {
     .status(200)
     .json({
       message: "Login successful",
+      token,
       user: { id: user.id, email: user.email, role: user.role},
     });
 
