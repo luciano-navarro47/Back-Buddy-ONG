@@ -12,7 +12,7 @@ export const getAllPets = async (req: Request, res: Response) => {
   }
 };
 
-export const getPetId = async (req: Request, res: Response) => {
+export const getPetById = async (req: Request, res: Response) => {
   const { id } = req.params;
   try {
     const pet = await Pet.findOneBy({ id });
@@ -69,7 +69,7 @@ export const deletePet = async (req: Request, res: Response) => {
 
   try {
     const pet = await Pet.delete({ id: id });
-    if(!pet) throw new NotFoundError("Pet not found");
+    if (!pet) throw new NotFoundError("Pet not found");
 
     return res.status(200).send("Pet deleted");
   } catch (error) {

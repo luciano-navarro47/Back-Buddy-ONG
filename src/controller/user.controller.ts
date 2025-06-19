@@ -37,18 +37,19 @@ export const getAllUsers = async (req: Request, res: Response) => {
   }
 };
 
-export const getUserId = async (req: Request, res: Response) => {
+export const getUserById = async (req: Request, res: Response): Promise<void> => {
   const { id } = req.params;
   try {
     const user = await User.find({
       where: [{ id: id }],
-      relations: ["pet"],
+      relations: ["pets"],
     });
 
     if (!user) throw new NotFoundError(`User ${id} is not found`);
     else res.status(200).send(user);
   } catch (error) {
-    handleHttpError(res, "ERROR_GET_USER");
+
+    handleHttpError(res, error);
   }
 };
 

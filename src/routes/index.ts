@@ -11,7 +11,7 @@ import webhookRouter from "./webhook.routes";
 const router = Router();
 
 router.use("/login", loginRouter);
-router.use("/pets", petsRouter);
+router.use("/pet", petsRouter);
 router.use("/user", userRouter);
 router.use("/products", productRouter);
 router.use("/veterinary", veterinaryRouter);

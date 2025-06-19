@@ -1,7 +1,7 @@
 import { Router } from "express";
 import {
   getAllUsers,
-  getUserId,
+  getUserById,
   updateUser,
   createUser,
   checkUsername,
@@ -21,7 +21,7 @@ const userRouter = Router();
 userRouter.get("/", getAllUsers);
 userRouter.get("/check-username", checkUsernameRateLimiter, checkUsername);
 userRouter.get("/oauth-user", getAuth0User);
-userRouter.get("/:id", getUserId);
+userRouter.get("/:id", getUserById);
 userRouter.put("/:id", updateUser);
 userRouter.put("/setStatusUser/:id", setStatusUserInDB);
 userRouter.post("/register", userValidator, validateRequest, createUser);
