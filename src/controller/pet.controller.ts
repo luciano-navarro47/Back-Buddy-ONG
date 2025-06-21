@@ -23,6 +23,18 @@ export const getPetById = async (req: Request, res: Response) => {
   }
 };
 
+export const getPetsByUserId = async (req: Request, res: Response) => {
+  const id = req.params.userId;
+  try {
+    if (!id) return res.status(400).json({ message: "User ID not providedd" });
+
+    const pets = await Pet.find({ where: { user: { id } } });
+    res.status(200).send(pets);
+  } catch (error) {
+    handleHttpError(res, error);
+  }
+};
+
 export const createPet = async (req: Request, res: Response) => {
   const { size, specie, age, img, detail, area, sex, status, userId } =
     req.body;
