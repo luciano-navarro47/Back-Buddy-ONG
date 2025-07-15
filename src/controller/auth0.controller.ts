@@ -1,7 +1,6 @@
 import { Response, Request } from "express";
 import { Status, User } from "../entities/User";
 import { handleHttpError } from "../utils/error.handler";
-// import { verifyToken } from "../utils/jwt.utils";
 
 export const getAuth0User = async (req: Request, res: Response) => {
   const oauthId = req.query.id as string;
