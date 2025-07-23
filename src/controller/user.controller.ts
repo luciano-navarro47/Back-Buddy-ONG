@@ -57,14 +57,28 @@ export const getUserById = async (
 
 export const updateUser = async (req: Request, res: Response) => {
   const { id } = req.params;
-  const { name, surname, email, username, phone } = req.body;
+  const { first_name, last_name, email, username, phone, newPassword } =
+    req.body;
   try {
     const user = await User.findOneBy({ id: id });
     if (!user) throw new NotFoundError(`User ${id} is not found`);
-    await User.update({ id: id }, req.body);
-    res.status(200).send("User Updated");
+
+    const toUpdate: Partial<User> = {
+      first_name,
+      last_name,
+      email,
+      username,
+      phone,
+    };
+
+    if (newPassword && newPassword.trim().length > 0) {
+      const hashed = await encrypt(newPassword);
+      toUpdate.password = hashed;
+    }
+    await User.update({ id: id }, toUpdate);
+    res.status(200).send({ ok: true, message: "User Updated" });
   } catch (error) {
-    handleHttpError(res, "ERROR_UPDATE_USERS");
+    handleHttpError(res, error);
   }
 };
 
@@ -116,8 +130,11 @@ export const checkUserPassword = async (req: Request, res: Response) => {
   try {
     if (userId) {
       const user = await User.findOneBy({ id: userId });
-      if (!user || !user.password) return res.status(400).json({ ok: false });
+      console.log("USER: ", user?.password);
+      if (!user || !user.password)
+        throw new NotFoundError(`User ${userId} is not found`);
       const isCorrect = await verify(currentPassword, user?.password);
+      console.log("ISCORR?: ", isCorrect);
       return res.status(200).json({ ok: isCorrect });
     }
   } catch (error) {
