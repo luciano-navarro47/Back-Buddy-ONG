@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { User, Status, Role } from "../entities/User";
 import { handleHttpError, NotFoundError } from "../utils/error.handler";
-import { encrypt } from "../utils/bcrypt.handler";
+import { encrypt, verify } from "../utils/bcrypt.handler";
 import { sendEmail } from "../utils/sendEmail";
 import rateLimit from "express-rate-limit";
 
@@ -37,7 +37,10 @@ export const getAllUsers = async (req: Request, res: Response) => {
   }
 };
 
-export const getUserById = async (req: Request, res: Response): Promise<void> => {
+export const getUserById = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
   const { id } = req.params;
   try {
     const user = await User.find({
@@ -48,21 +51,34 @@ export const getUserById = async (req: Request, res: Response): Promise<void> =>
     if (!user) throw new NotFoundError(`User ${id} is not found`);
     else res.status(200).send(user);
   } catch (error) {
-
     handleHttpError(res, error);
   }
 };
 
 export const updateUser = async (req: Request, res: Response) => {
   const { id } = req.params;
-  const { name, surname, email, username, phone } = req.body;
+  const { first_name, last_name, email, username, phone, newPassword } =
+    req.body;
   try {
     const user = await User.findOneBy({ id: id });
     if (!user) throw new NotFoundError(`User ${id} is not found`);
-    await User.update({ id: id }, req.body);
-    res.status(200).send("User Updated");
+
+    const toUpdate: Partial<User> = {
+      first_name,
+      last_name,
+      email,
+      username,
+      phone,
+    };
+
+    if (newPassword && newPassword.trim().length > 0) {
+      const hashed = await encrypt(newPassword);
+      toUpdate.password = hashed;
+    }
+    await User.update({ id: id }, toUpdate);
+    res.status(200).send({ ok: true, message: "User Updated" });
   } catch (error) {
-    handleHttpError(res, "ERROR_UPDATE_USERS");
+    handleHttpError(res, error);
   }
 };
 
@@ -86,7 +102,7 @@ export const setStatusUserInDB = async (req: Request, res: Response) => {
 export const checkUsernameRateLimiter = rateLimit({
   windowMs: 1 * 60 * 1000,
   max: 50,
-  message: {error: "Too many requests, try again later."},
+  message: { error: "Too many requests, try again later." },
   standardHeaders: true,
   legacyHeaders: false,
 });
@@ -106,6 +122,23 @@ export const checkUsername = async (req: Request, res: Response) => {
     return res.status(200).json({ available: !existingUser });
   } catch (error) {
     handleHttpError(res, "INTERNAL_SERVER_ERROR");
+  }
+};
+
+export const checkUserPassword = async (req: Request, res: Response) => {
+  const { userId, currentPassword } = req.body;
+  try {
+    if (userId) {
+      const user = await User.findOneBy({ id: userId });
+      console.log("USER: ", user?.password);
+      if (!user || !user.password)
+        throw new NotFoundError(`User ${userId} is not found`);
+      const isCorrect = await verify(currentPassword, user?.password);
+      console.log("ISCORR?: ", isCorrect);
+      return res.status(200).json({ ok: isCorrect });
+    }
+  } catch (error) {
+    handleHttpError(res, error);
   }
 };
 

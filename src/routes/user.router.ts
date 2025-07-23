@@ -8,6 +8,7 @@ import {
   setStatusUserInDB,
   deleteUser,
   checkUsernameRateLimiter,
+  checkUserPassword,
 } from "../controller/user.controller";
 import {
   oauthUserValidator,
@@ -31,6 +32,7 @@ userRouter.post(
   validateRequest,
   upsertAuth0User
 );
+userRouter.post("/check-password", checkUserPassword);
 userRouter.delete("/:id", deleteUser);
 
 export default userRouter;
