@@ -130,11 +130,9 @@ export const checkUserPassword = async (req: Request, res: Response) => {
   try {
     if (userId) {
       const user = await User.findOneBy({ id: userId });
-      console.log("USER: ", user?.password);
       if (!user || !user.password)
         throw new NotFoundError(`User ${userId} is not found`);
       const isCorrect = await verify(currentPassword, user?.password);
-      console.log("ISCORR?: ", isCorrect);
       return res.status(200).json({ ok: isCorrect });
     }
   } catch (error) {
