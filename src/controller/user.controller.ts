@@ -83,23 +83,6 @@ export const updateUser = async (req: Request, res: Response) => {
   }
 };
 
-// export const setStatusUserInDB = async (req: Request, res: Response) => {
-//   const { id } = req.params;
-//   try {
-//     const user = await User.findOneBy({ id: id });
-//     if (!user) throw new NotFoundError(`User ${id} is not found`);
-//     if (user.status === Status.ACTIVE) {
-//       await User.update({ id: id }, { status: Status.BANNED });
-//       res.status(200).send("User banned.");
-//     } else {
-//       await User.update({ id: id }, { status: Status.ACTIVE });
-//       res.status(200).send("User re-activaded.");
-//     }
-//   } catch (error) {
-//     console.log(error);
-//   }
-// };
-
 export const bulkSetUsersStatus = async (req: Request, res: Response) => {
   const updates: { id: string; status: Status }[] = req.body;
 
