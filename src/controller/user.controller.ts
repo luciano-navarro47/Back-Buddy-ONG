@@ -4,6 +4,7 @@ import { handleHttpError, NotFoundError } from "../utils/error.handler";
 import { encrypt, verify } from "../utils/bcrypt.handler";
 import { sendEmail } from "../utils/sendEmail";
 import rateLimit from "express-rate-limit";
+import { In } from "typeorm";
 
 export const createUser = async (req: Request, res: Response) => {
   const { first_name, last_name, email, username, phone, password } = req.body;
@@ -82,20 +83,33 @@ export const updateUser = async (req: Request, res: Response) => {
   }
 };
 
-export const setStatusUserInDB = async (req: Request, res: Response) => {
-  const { id } = req.params;
+export const bulkSetUsersStatus = async (req: Request, res: Response) => {
+  const updates: { id: string; status: Status }[] = req.body;
+
+  if (!Array.isArray(updates) || updates.length === 0) {
+    return res.status(400).json({ message: "No users provided for update." });
+  }
+
   try {
-    const user = await User.findOneBy({ id: id });
-    if (!user) throw new NotFoundError(`User ${id} is not found`);
-    if (user.status === Status.ACTIVE) {
-      await User.update({ id: id }, { status: Status.BANNED });
-      res.status(200).send("User banned.");
-    } else {
-      await User.update({ id: id }, { status: Status.ACTIVE });
-      res.status(200).send("User re-activaded.");
+    const userIds = updates.map((u) => u.id);
+
+    const existingUsers = await User.findBy({ id: In(userIds) });
+    const existingIds = existingUsers.map((u) => u.id);
+
+    const missingIds = userIds.filter((id) => !existingIds.includes(id));
+    if (missingIds.length > 0) {
+      return res
+        .status(404)
+        .json({ message: `Users not found: ${missingIds.join(", ")}` });
     }
+
+    for (const { id, status } of updates) {
+      await User.update({ id }, { status });
+    }
+
+    return res.status(200).json({ message: "All user's status updated correctly."})
   } catch (error) {
-    console.log(error);
+    handleHttpError(res, error)
   }
 };
 

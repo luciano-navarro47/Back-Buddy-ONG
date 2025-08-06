@@ -5,7 +5,7 @@ import {
   updateUser,
   createUser,
   checkUsername,
-  setStatusUserInDB,
+  bulkSetUsersStatus,
   deleteUser,
   checkUsernameRateLimiter,
   checkUserPassword,
@@ -23,8 +23,8 @@ userRouter.get("/", getAllUsers);
 userRouter.get("/check-username", checkUsernameRateLimiter, checkUsername);
 userRouter.get("/oauth-user", getAuth0User);
 userRouter.get("/:id", getUserById);
+userRouter.put("/bulk-set-status", bulkSetUsersStatus);
 userRouter.put("/:id", userValidator, updateUser);
-userRouter.put("/setStatusUser/:id", setStatusUserInDB);
 userRouter.post("/register", userValidator, validateRequest, createUser);
 userRouter.post(
   "/oauth-upsert",
