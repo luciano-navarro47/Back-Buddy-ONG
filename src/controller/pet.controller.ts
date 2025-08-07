@@ -5,7 +5,8 @@ import { NotFoundError, handleHttpError } from "../utils/error.handler";
 
 export const getAllPets = async (req: Request, res: Response) => {
   try {
-    const pets = await Pet.find();
+    const pets = await Pet.find({ relations: ["user"] });
+    if (pets.length === 0) throw new NotFoundError("Not found pets");
     res.status(200).send(pets);
   } catch (error) {
     handleHttpError(res, error);
@@ -31,7 +32,9 @@ export const getPetsByUserId = async (req: Request, res: Response) => {
     const pets = await Pet.find({ where: { user: { id } } });
 
     if (pets.length === 0) {
-      return res.status(404).json({ message: "User pets not found with this ID." });
+      return res
+        .status(404)
+        .json({ message: "User pets not found with this ID." });
     }
 
     res.status(200).send(pets);
@@ -61,6 +64,8 @@ export const createPet = async (req: Request, res: Response) => {
     newPet.user = searchUser[0];
 
     await newPet.save();
+
+    console.log("newPET:", newPet);
     return res.status(200).send(newPet);
   } catch (error) {
     handleHttpError(res, error);
