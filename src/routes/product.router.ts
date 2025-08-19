@@ -2,7 +2,7 @@ import { Router } from "express";
 // import { validatorPostProduct } from "../middlewares/validators/product.validator";
 import {
 	createProduct,
-	deleteProduct,
+	bulkDeleteProducts,
 	getAllProducts,
 	getProductId,
 	updateProduct,
@@ -15,6 +15,6 @@ productRouter.get("/", getAllProducts);
 productRouter.post("/", authenticateJWT, createProduct);
 productRouter.get("/:id", getProductId);
 productRouter.put("/:id", updateProduct);
-productRouter.delete("/:id", deleteProduct)
+productRouter.delete("/bulk-delete-products", bulkDeleteProducts)
 
 export default productRouter;

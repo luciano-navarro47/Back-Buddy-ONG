@@ -6,6 +6,7 @@ import {
   BadRequestError,
 } from "../utils/error.handler";
 import AppDataSource from "../config/data-source";
+import { In } from "typeorm";
 
 export const getAllProducts = async (req: Request, res: Response) => {
   try {
@@ -76,17 +77,11 @@ export const updateProduct = async (req: Request, res: Response) => {
   }
 };
 
-export const deleteProduct = async (req: Request, res: Response) => {
+export const bulkDeleteProducts = async (req: Request, res: Response) => {
   try {
-    const { id } = req.params;
+    const { idsToDelete } = req.body;
     const productRepository = AppDataSource.getRepository(Product);
-    const product = await productRepository.findOne({ where: { id } });
-
-    if (!product) {
-      throw new NotFoundError("Products not found");
-    }
-
-    await productRepository.remove(product);
+    await productRepository.delete({ id: In(idsToDelete) });
     return res.status(200).send({ message: "Product deleted successfully" });
   } catch (error) {
     handleHttpError(res, error);
