@@ -82,7 +82,10 @@ export const bulkDeleteProducts = async (req: Request, res: Response) => {
     const { idsToDelete } = req.body;
     const productRepository = AppDataSource.getRepository(Product);
     await productRepository.delete({ id: In(idsToDelete) });
-    return res.status(200).send({ message: "Product deleted successfully" });
+    return res.status(200).send({
+      message: "Products deleted successfully",
+      deletedCount: idsToDelete.length,
+    });
   } catch (error) {
     handleHttpError(res, error);
   }
