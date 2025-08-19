@@ -62,12 +62,15 @@ export const updateProduct = async (req: Request, res: Response) => {
 
   try {
     const product = await Product.findOneBy({ id: id });
-    
+
     if (!product) {
       throw new NotFoundError("Products not found");
     }
-    await Product.update({ id: id }, req.body);
-    return res.sendStatus(200);
+
+    Object.assign(product, req.body);
+
+    const saved = await Product.save(product);
+    return res.status(200).json(saved);
   } catch (error) {
     handleHttpError(res, error);
   }
