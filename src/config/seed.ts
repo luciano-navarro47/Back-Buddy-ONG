@@ -13,37 +13,21 @@ dataSource
   .then(async () => {
     console.log("📌 Executing seeders...");
 
-    const petCount = await dataSource.getRepository(Pet).count();
-    if (petCount > 0) {
-      console.log("🐾 Pet table already has records. Seeding canceled.");
-    } else {
-      await new PetSeeder().run(dataSource);
-      console.log("✅ Seeding Pet completed.");
-    }
+    await dataSource.getRepository(Pet).count();
+    await new PetSeeder().run(dataSource);
+    console.log("✅ Seeding Pet completed.");
 
-    const productCount = await dataSource.getRepository(Product).count();
-    if (productCount > 0) {
-      console.log("🐾 Product table already has records. Seeding canceled.");
-    } else {
-      await new ProductSeeder().run(dataSource);
-      console.log("✅ Seeding Product completed.");
-    }
+    await dataSource.getRepository(Product).count();
+    await new ProductSeeder().run(dataSource);
+    console.log("✅ Seeding Product completed.");
 
-    const userCount = await dataSource.getRepository(User).count();
-    if (userCount > 4) {
-      console.log("🐾 User table already has records. Seeding canceled.");
-    } else {
-      await new UserSeeder().run(dataSource);
-      console.log("✅ Seeding User completed.");
-    }
+    await dataSource.getRepository(User).count();
+    await new UserSeeder().run(dataSource);
+    console.log("✅ Seeding User completed.");
 
-    const veterinaryCount = await dataSource.getRepository(Veterinary).count();
-    if (veterinaryCount > 0) {
-      console.log("🐾 Veterinary table already has records. Seeding canceled.");
-    } else {
-      await new VeterinarySeeder().run(dataSource);
-      console.log("✅ Seeding Veterinary completed.");
-    }
+    await dataSource.getRepository(Veterinary).count();
+    await new VeterinarySeeder().run(dataSource);
+    console.log("✅ Seeding Veterinary completed.");
 
     process.exit();
   })
