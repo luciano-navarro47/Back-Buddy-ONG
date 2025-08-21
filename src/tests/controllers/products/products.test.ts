@@ -1,10 +1,11 @@
-import { Repository } from "typeorm";
 import { Product } from "../../../entities/Product";
+import { In } from "typeorm";
 import AppDataSource from "../../../config/data-source";
 import {
+  bulkDeleteProducts,
   createProduct,
-  deleteProduct,
-  getAllProducts,
+  // bulkDeleteProducts,
+  // getAllProducts,
 } from "../../../controller/product.controller";
 import { Request, Response } from "express";
 
@@ -22,7 +23,7 @@ import { Request, Response } from "express";
 //       status: jest.fn().mockReturnThis(),
 //       send: jest.fn(),
 //     } as unknown as Response;
-    
+
 //     jest.spyOn(Product, "find").mockResolvedValue(mockProducts);
 
 //     await getAllProducts(mockRequest, mockResponse);
@@ -41,10 +42,9 @@ import { Request, Response } from "express";
 //     } as unknown as Response;
 
 //     // We simulate that mocked repository returns an empty array
-//     const mockRepository = { 
+//     const mockRepository = {
 //       find: jest.fn().mockResolvedValue([])
 //     } as unknown as Repository<Product>
-
 
 //     jest.spyOn(AppDataSource, "getRepository").mockReturnValue(mockRepository);
 
@@ -92,11 +92,11 @@ describe("Create Product", () => {
   // Negative case is needed
 });
 
-describe("Delete Product", () => {
-  it("should delete a product successfully", async () => {
+describe("Bulk Delete Products", () => {
+  it("should delete multiple products successfully", async () => {
     const mockRequest = {
-      params: {
-        id: "Test ID",
+      body: {
+        idsToDelete: ["Test ID 1", "Test ID 2", "Test ID 3"],
       },
     } as unknown as Request;
 
@@ -105,25 +105,24 @@ describe("Delete Product", () => {
       send: jest.fn(),
     } as unknown as Response;
 
-    const mockProduct = new Product();
-    Object.assign(mockProduct, { id: "Test ID" });
 
     const productRepositoryMock = {
-      findOne: jest.fn().mockReturnValue(mockProduct),
-      remove: jest.fn().mockReturnValue(mockProduct),
+      delete: jest.fn().mockResolvedValue({ affected: 3 }),
     };
 
     jest
       .spyOn(AppDataSource, "getRepository")
       .mockReturnValue(productRepositoryMock as any);
 
-    await deleteProduct(mockRequest, mockResponse);
+    await bulkDeleteProducts(mockRequest, mockResponse);
 
-    expect(productRepositoryMock.findOne).toHaveBeenCalledWith({
-      where: { id: "Test ID" },
+    expect(productRepositoryMock.delete).toHaveBeenCalledWith({
+      id: In(["Test ID 1", "Test ID 2", "Test ID 3"])
     });
-    expect(productRepositoryMock.remove).toHaveBeenCalledWith(mockProduct);
     expect(mockResponse.status).toHaveBeenCalledWith(200);
-    expect(mockResponse.send).toHaveBeenCalledWith({ message: "Product deleted successfully"})
+    expect(mockResponse.send).toHaveBeenCalledWith({
+      message: "Products deleted successfully",
+      deletedCount: 3,
+    });
   });
 });
