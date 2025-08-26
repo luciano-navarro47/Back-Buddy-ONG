@@ -10,12 +10,12 @@ export default class ProductSeeder extends Seeder {
 
     for (let i = 0; i < 10; i++) {
       const product = new Product();
-      const { category, image_url, name, description, price, stock } =
+      const { category, images, name, description, price, stock } =
         await getProductRandomData();
 
       Object.assign(product, {
         category,
-        image_url,
+        images,
         name,
         description,
         price,

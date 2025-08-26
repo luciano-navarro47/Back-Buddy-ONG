@@ -23,16 +23,23 @@ export const getAllProducts = async (req: Request, res: Response) => {
 };
 
 export const createProduct = async (req: Request, res: Response) => {
-  const { name, description, image_url, price, stock, category } = req.body;
+  const { name, description, images, price, stock, category } = req.body;
   try {
-    if (!name || !price || !image_url || !stock || !category) {
-      throw new BadRequestError("Missing fields");
+    if (
+      !name ||
+      price == null ||
+      !Array.isArray(images) ||
+      images.length === 0 ||
+      !stock ||
+      !category
+    ) {
+      throw new BadRequestError("Missing or invalid fields");
     }
 
     const newProduct = new Product();
     newProduct.category = category;
     newProduct.name = name;
-    newProduct.image_url = image_url;
+    newProduct.images = images;
     newProduct.description = description;
     newProduct.price = price;
     newProduct.stock = stock;
@@ -66,6 +73,11 @@ export const updateProduct = async (req: Request, res: Response) => {
 
     if (!product) {
       throw new NotFoundError("Products not found");
+    }
+
+    const { images } = req.body;
+    if (images !== undefined && !Array.isArray(images)) {
+      throw new BadRequestError("Images must be an array of URLs");
     }
 
     Object.assign(product, req.body);

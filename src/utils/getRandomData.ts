@@ -10,7 +10,7 @@ const UNSPLASH_ACCESS_KEY = process.env.UNSPLASH_ACCESS_KEY;
 
 export const getProductRandomData = async (): Promise<{
   category: string;
-  image_url: string;
+  images: string[];
   name: string;
   description: string;
   price: number;
@@ -24,7 +24,7 @@ export const getProductRandomData = async (): Promise<{
   const name = `Producto N°${faker.number.int({ min: 1, max: 100 })}`;
   const price = faker.number.int({ min: 500, max: 15000 });
   const stock = faker.number.int({ min: 0, max: 100 });
-  let image_url = "";
+  let images: string[] = [];
   let description = "";
 
   try {
@@ -35,7 +35,7 @@ export const getProductRandomData = async (): Promise<{
       
       description = data.alt_description || faker.commerce.productDescription();
       if (data?.urls.thumb) {
-        image_url = data.urls.thumb;
+        images.push(data.urls.thumb);
       } else {
         throw new Error("Image Url not found.");
       }
@@ -44,14 +44,14 @@ export const getProductRandomData = async (): Promise<{
     console.error("Error getting Unsplash's image: ", error);
   }
 
-  if (!image_url) {
-    image_url = faker.image.url({ width: 200, height: 200 });
+  if (images.length === 0) {
+    images.push(faker.image.url({ width: 200, height: 200 }));
   }
   if (!description) {
     description = faker.commerce.productDescription();
   }
 
-  return { category, image_url, name, description, price, stock };
+  return { category, images, name, description, price, stock };
 };
 
 export const getPetRandomData = async (): Promise<{

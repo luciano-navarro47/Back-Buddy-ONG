@@ -32,8 +32,8 @@ export class Product extends BaseEntity {
   @PrimaryGeneratedColumn("uuid")
   id!: string;
 
-  @Column()
-  image_url!: string;
+  @Column("text", { array: true, default: []})
+  images!: string[];
 
   @Column()
   name!: string;
