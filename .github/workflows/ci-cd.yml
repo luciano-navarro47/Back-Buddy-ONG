@@ -60,6 +60,7 @@ jobs:
       - name: Install PostgreSQL Client
         run: apt-get update && apt-get install -y postgresql-client
 
+      - run: echo "DB_USER=${{ secrets.DB_USER }}, TEST_DB_NAME=${{ secrets.TEST_DB_NAME }}"
       - name: Verify connection to PostgreSQL
         run: |
           echo "Waiting for PostgreSQL to be ready..."
@@ -67,7 +68,7 @@ jobs:
             sleep 2
           done
           echo "PostgreSQL is ready!"
-          POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }} psql -h postgres -U ${{secrets.DB_USER}} -d ${{secrets.TEST_DB_NAME}} -c "SELECT 1;"
+          PGPASSWORD=${{ secrets.POSTGRES_PASSWORD }} psql -h postgres -U ${{secrets.DB_USER}} -d ${{secrets.TEST_DB_NAME}} -c "SELECT 1;"
 
       - name: Test database connection with TypeORM
         run: node dist/index.js
@@ -75,12 +76,11 @@ jobs:
       - name: Run product tests
         run: npm test -- --testPathPattern=products.test.ts
         continue-on-error: true
-        
+
       - name: Run seeders tests
         run: npm test -- --testPathPattern=seeders.test.ts
         continue-on-error: true
-        
+
       - name: Run getRandomData tests
         run: npm test -- --testPathPattern=getRandomData.test.ts
         continue-on-error: true
-        
