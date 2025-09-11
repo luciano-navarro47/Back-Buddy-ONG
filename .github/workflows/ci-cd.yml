@@ -60,7 +60,6 @@ jobs:
       - name: Install PostgreSQL Client
         run: apt-get update && apt-get install -y postgresql-client
 
-      - run: echo "DB_USER=${{ secrets.DB_USER }}, TEST_DB_NAME=${{ secrets.TEST_DB_NAME }}"
       - name: Verify connection to PostgreSQL
         run: |
           echo "Waiting for PostgreSQL to be ready..."
