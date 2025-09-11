@@ -1,6 +1,7 @@
 import "reflect-metadata";
 import AppDataSource from "./config/data-source";
 import server from "./app";
+import { User } from "./entities/User";
 import * as dotenv from "dotenv";
 dotenv.config();
 
@@ -10,6 +11,13 @@ const startServer = async () => {
   try {
     await AppDataSource.initialize();
     console.log("Database connected");
+
+    try {
+      const users = await AppDataSource.getRepository(User).find();
+      console.log("DB Users: ", users);
+    } catch (error) {
+      console.error("❌ Error queries Users:", error);
+    }
 
     if (process.env.CI === "true") {
       console.log("Running in CI mode, skipping server start.");

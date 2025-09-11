@@ -1,0 +1,13 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+// import { validatorPostProduct } from "../middlewares/validators/product.validator";
+const product_controller_1 = require("../controller/product.controller");
+const auth_middleware_1 = require("../middlewares/validators/auth.middleware");
+const productRouter = (0, express_1.Router)();
+productRouter.get("/", product_controller_1.getAllProducts);
+productRouter.post("/", auth_middleware_1.authenticateJWT, product_controller_1.createProduct);
+productRouter.get("/:id", product_controller_1.getProductId);
+productRouter.put("/:id", product_controller_1.updateProduct);
+productRouter.delete("/bulk-delete-products", product_controller_1.bulkDeleteProducts);
+exports.default = productRouter;
