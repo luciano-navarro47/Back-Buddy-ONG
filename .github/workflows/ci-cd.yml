@@ -59,27 +59,37 @@ jobs:
 
       - name: Install PostgreSQL Client
         run: apt-get update && apt-get install -y postgresql-client
+      
+      - name: Debug secrets
+        run: |
+          echo "DB_USER=${{ secrets.DB_USER }}"
+          echo "TEST_DB_NAME=${{ secrets.TEST_DB_NAME }}"
 
       - name: Verify connection to PostgreSQL
+        if: github.actor != 'dependabot[bot]'
         run: |
           echo "Waiting for PostgreSQL to be ready..."
           until pg_isready -h postgres -U ${{ secrets.DB_USER }} -d ${{ secrets.TEST_DB_NAME }}; do
             sleep 2
           done
           echo "PostgreSQL is ready!"
-          PGPASSWORD=${{ secrets.POSTGRES_PASSWORD }} psql -h postgres -U ${{secrets.DB_USER}} -d ${{secrets.TEST_DB_NAME}} -c "SELECT 1;"
+          POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }} psql -h postgres -U ${{secrets.DB_USER}} -d ${{secrets.TEST_DB_NAME}} -c "SELECT 1;"
 
       - name: Test database connection with TypeORM
+        if: github.actor != 'dependabot[bot]'
         run: node dist/index.js
 
       - name: Run product tests
+        if: github.actor != 'dependabot[bot]'
         run: npm test -- --testPathPattern=products.test.ts
         continue-on-error: true
 
       - name: Run seeders tests
+        if: github.actor != 'dependabot[bot]'
         run: npm test -- --testPathPattern=seeders.test.ts
         continue-on-error: true
 
       - name: Run getRandomData tests
+        if: github.actor != 'dependabot[bot]'
         run: npm test -- --testPathPattern=getRandomData.test.ts
         continue-on-error: true
