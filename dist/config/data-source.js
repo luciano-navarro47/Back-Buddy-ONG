@@ -32,7 +32,11 @@ var __importStar = (this && this.__importStar) || (function () {
         return result;
     };
 })();
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
+const path_1 = __importDefault(require("path"));
 const typeorm_1 = require("typeorm");
 const Product_1 = require("../entities/Product");
 const User_1 = require("../entities/User");
@@ -72,7 +76,9 @@ const AppDataSource = new typeorm_1.DataSource({
         Donation_1.Donation,
         CardSubscription_1.CardSubscription,
     ],
-    migrations: ["dist/migrations/*.js"],
-    subscribers: isDevEnv ? ["dist/subscribers/*.js"] : ["src/subscribers/*.ts"],
+    migrations: [path_1.default.join(__dirname, "..", "migrations", "*{.ts,.js}")],
+    subscribers: isDevEnv
+        ? [path_1.default.join(__dirname, "../subscribers/*.js")]
+        : [path_1.default.join(__dirname, "../subscribers/*.ts")],
 });
 exports.default = AppDataSource;

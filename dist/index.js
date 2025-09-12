@@ -39,6 +39,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 require("reflect-metadata");
 const data_source_1 = __importDefault(require("./config/data-source"));
 const app_1 = __importDefault(require("./app"));
+const User_1 = require("./entities/User");
 const dotenv = __importStar(require("dotenv"));
 dotenv.config();
 const PORT = 3001;
@@ -46,6 +47,13 @@ const startServer = async () => {
     try {
         await data_source_1.default.initialize();
         console.log("Database connected");
+        try {
+            const users = await data_source_1.default.getRepository(User_1.User).find();
+            console.log("DB Users: ", users);
+        }
+        catch (error) {
+            console.error("❌ Error queries Users:", error);
+        }
         if (process.env.CI === "true") {
             console.log("Running in CI mode, skipping server start.");
             await data_source_1.default.destroy();

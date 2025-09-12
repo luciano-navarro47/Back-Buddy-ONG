@@ -1,3 +1,4 @@
+import path from "path";
 import { DataSource } from "typeorm";
 import { Product } from "../entities/Product";
 import { User } from "../entities/User";
@@ -39,8 +40,10 @@ const AppDataSource = new DataSource({
     Donation,
     CardSubscription,
   ],
-  migrations: ["dist/migrations/*.js"],
-  subscribers: isDevEnv ? ["dist/subscribers/*.js"] : ["src/subscribers/*.ts"],
+  migrations: [path.join(__dirname, "..", "migrations", "*{.ts,.js}")],
+  subscribers: isDevEnv
+    ? [path.join(__dirname, "../subscribers/*.js")]
+    : [path.join(__dirname, "../subscribers/*.ts")],
 });
 
 export default AppDataSource;

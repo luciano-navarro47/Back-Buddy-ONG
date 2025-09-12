@@ -38,6 +38,7 @@ const getAllUsers = async (req, res) => {
         res.status(200).send(users);
     }
     catch (error) {
+        console.log("ERROR_GET_USERS: ", error);
         (0, error_handler_1.handleHttpError)(res, "ERROR_GET_USERS");
     }
 };
