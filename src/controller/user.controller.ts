@@ -34,6 +34,7 @@ export const getAllUsers = async (req: Request, res: Response) => {
     const users = await User.find();
     res.status(200).send(users);
   } catch (error) {
+    console.log("ERROR_GET_USERS: ", error);
     handleHttpError(res, "ERROR_GET_USERS");
   }
 };

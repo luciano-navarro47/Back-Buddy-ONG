@@ -18,7 +18,7 @@ jobs:
         image: postgres
         env:
           POSTGRES_USER: ${{secrets.DB_USER}}
-          POSTGRES_DB: ${{secrets.TEST_DB_NAME}}
+          POSTGRES_DB: ${{secrets.DB_NAME}}
           POSTGRES_PASSWORD: ${{secrets.POSTGRES_PASSWORD}}
           POSTGRES_HOST_AUTH_METHOD: trust
         options: >-
@@ -34,6 +34,7 @@ jobs:
       NODE_ENV: ${{secrets.NODE_ENV}}
       DB_HOST: postgres
       DB_PORT: 5432
+      DB_URL: ${{secrets.DB_URL}}
       DB_USER: ${{secrets.DB_USER}}
       DB_PASSWORD: ${{secrets.POSTGRES_PASSWORD}}
       DB_NAME: ${{secrets.DB_NAME}}
@@ -63,16 +64,16 @@ jobs:
       - name: Debug secrets
         run: |
           echo "DB_USER=${{ secrets.DB_USER }}"
-          echo "TEST_DB_NAME=${{ secrets.TEST_DB_NAME }}"
+          echo "TEST_DB_NAME=${{ secrets.DB_NAME }}" 
 
       - name: Verify connection to PostgreSQL
         run: |
           echo "Waiting for PostgreSQL to be ready..."
-          until pg_isready -h postgres -U ${{ secrets.DB_USER }} -d ${{ secrets.TEST_DB_NAME }}; do
+          until pg_isready -h postgres -U ${{ secrets.DB_USER }} -d ${{ secrets.DB_NAME }}; do
             sleep 2
           done
           echo "PostgreSQL is ready!"
-          POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }} psql -h postgres -U ${{secrets.DB_USER}} -d ${{secrets.TEST_DB_NAME}} -c "SELECT 1;"
+          POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }} psql -h postgres -U ${{secrets.DB_USER}} -d ${{secrets.DB_NAME}} -c "SELECT 1;"
 
       - name: Test database connection with TypeORM
         run: node dist/index.js

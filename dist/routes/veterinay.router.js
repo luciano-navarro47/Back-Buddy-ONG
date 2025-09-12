@@ -1,0 +1,11 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const veterinary_validator_1 = require("../middlewares/validators/veterinary.validator");
+const veterinary_controller_1 = require("../controller/veterinary.controller");
+const veterinaryRouter = (0, express_1.Router)();
+veterinaryRouter.get("/", veterinary_controller_1.getAllVeterinary);
+veterinaryRouter.post("/", veterinary_validator_1.veterinaryValidator, veterinary_controller_1.createVeterinary);
+veterinaryRouter.get("/:id", veterinary_controller_1.getVeterinaryId);
+veterinaryRouter.put("/:id", veterinary_controller_1.updateVeterinary);
+exports.default = veterinaryRouter;
