@@ -1,7 +1,6 @@
 import "reflect-metadata";
 import AppDataSource from "./config/data-source";
 import server from "./app";
-import { User } from "./entities/User";
 import * as dotenv from "dotenv";
 dotenv.config();
 
