@@ -12,13 +12,6 @@ const startServer = async () => {
     await AppDataSource.initialize();
     console.log("Database connected");
 
-    try {
-      const users = await AppDataSource.getRepository(User).find();
-      console.log("DB Users: ", users);
-    } catch (error) {
-      console.error("❌ Error queries Users:", error);
-    }
-
     if (process.env.CI === "true") {
       console.log("Running in CI mode, skipping server start.");
       await AppDataSource.destroy();
