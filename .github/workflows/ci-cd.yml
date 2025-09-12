@@ -64,7 +64,7 @@ jobs:
       - name: Debug secrets
         run: |
           echo "DB_USER=${{ secrets.DB_USER }}"
-          echo "TEST_DB_NAME=${{ secrets.TEST_DB_NAME }}"
+          echo "TEST_DB_NAME=${{ secrets.TEST_DB_NAME }}" 
 
       - name: Verify connection to PostgreSQL
         run: |
