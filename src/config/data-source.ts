@@ -12,21 +12,21 @@ import { Donation } from "../entities/Donation";
 import * as dotenv from "dotenv";
 dotenv.config();
 
-const isDevEnv = process.env.NODE_ENV === "dev";
-const isProdEnv = process.env.NODE_ENV === "prod";
+const isDevEnv = process.env.NODE_ENV === "development";
+const isProdEnv = process.env.NODE_ENV === "production";
+const isCompiled = path.extname(__filename).includes(".js")
 
 const AppDataSource = new DataSource({
   type: "postgres",
-  host: isProdEnv ? process.env.DB_HOST : process.env.DB_HOST || "localhost",
-  port: parseInt(process.env.DB_PORT || "5432"),
-  username: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: isDevEnv
-    ? process.env.TEST_DB_NAME
-    : isProdEnv
-    ? process.env.DB_NAME
-    : process.env.DB_NAME,
-  url: isProdEnv ? process.env.DB_URL : undefined,
+  ...(isProdEnv && process.env.DB_URL
+    ? { url: process.env.DB_URL }
+    : {
+        host: process.env.DB_HOST || "localhost",
+        port: parseInt(process.env.DB_PORT || "5432"),
+        username: process.env.DB_USER,
+        password: process.env.DB_PASSWORD,
+        database: isDevEnv ? process.env.TEST_DB_NAME : process.env.DB_NAME,
+      }),
   synchronize: !isProdEnv,
   ssl: isProdEnv ? { rejectUnauthorized: false } : false,
   entities: [
@@ -40,10 +40,10 @@ const AppDataSource = new DataSource({
     Donation,
     CardSubscription,
   ],
-  migrations: [path.join(__dirname, "..", "migrations", "*{.ts,.js}")],
-  subscribers: isDevEnv
+  subscribers: isCompiled
     ? [path.join(__dirname, "../subscribers/*.js")]
     : [path.join(__dirname, "../subscribers/*.ts")],
+  migrations: [path.join(__dirname, "..", "migrations", "*{.ts,.js}")],
 });
 
 export default AppDataSource;
