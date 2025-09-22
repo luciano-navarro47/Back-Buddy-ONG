@@ -5,7 +5,7 @@ import * as dotenv from "dotenv";
 dotenv.config();
 
 const isProductionEnv = process.env.NODE_ENV === "production";
-const PORT = process.env.PORT || 8080;
+const PORT = process.env.PORT || 3001;
 
 const startServer = async () => {
   try {
@@ -18,7 +18,7 @@ const startServer = async () => {
       process.exit(0);
     }
 
-    const app = server.listen(isProductionEnv ? PORT : 3001, () => {
+    const app = server.listen(PORT, () => {
       console.log(`🚀 Server running on port ${isProductionEnv ? PORT : 3001}`);
     });
 
