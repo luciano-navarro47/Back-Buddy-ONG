@@ -17,7 +17,7 @@ COPY . .
 RUN npm run build
 
 # Expose port (Cloud Run will use it)
-# EXPOSE 8080
+EXPOSE 8080
 
 # Start command
 CMD ["node", "dist/index.js"]

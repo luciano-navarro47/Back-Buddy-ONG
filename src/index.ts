@@ -7,15 +7,6 @@ dotenv.config();
 const isProductionEnv = process.env.NODE_ENV === "production";
 const PORT = Number(process.env.PORT) || 8080;
 
-console.log("=== Startup env ===");
-console.log({
-  PORT,
-  NODE_ENV: process.env.NODE_ENV,
-  CI: process.env.CI,
-  K_SERVICE: process.env.K_SERVICE, // Cloud Run sets K_* vars
-  K_REVISION: process.env.K_REVISION,
-});
-
 process.on("unhandledRejection", (reason) => {
   console.error("Unhandled Rejection:", reason);
 });
