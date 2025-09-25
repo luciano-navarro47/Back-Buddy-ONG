@@ -4,8 +4,9 @@ import server from "./app";
 import * as dotenv from "dotenv";
 dotenv.config();
 
-const isProductionEnv = process.env.NODE_ENV === "production";
-const PORT = process.env.PORT || 8080;
+// const isProductionEnv = process.env.NODE_ENV === "production";
+const PORT = Number(process.env.PORT) || 8080;
+const HOST = '0.0.0.0';
 
 const startServer = async () => {
   try {
@@ -19,8 +20,8 @@ const startServer = async () => {
       process.exit(0);
     }
 
-    const httpServer = server.listen(PORT, () => {
-      console.log(`🚀 Server running on port ${PORT}`);
+    const httpServer = server.listen(PORT, HOST, () => {
+      console.log(`🚀 Server running on http://${HOST}:${PORT}`);
     });
 
 //     process.on("SIGTERM", async () => {
