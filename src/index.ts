@@ -23,18 +23,18 @@ const startServer = async () => {
       console.log(`🚀 Server running on port ${PORT}`);
     });
 
-    process.on("SIGTERM", async () => {
-      console.log("🛑 SIGTERM received, closing...");
-      try {
-        await AppDataSource.destroy();
-      } catch (error) {
-        console.error("Error detroying DB connections: ", error);
-      }
-      httpServer.close(() => {
-        console.log("🛑 Server closed");
-        process.exit(0);
-      });
-    });
+//     process.on("SIGTERM", async () => {
+//       console.log("🛑 SIGTERM received, closing...");
+//       try {
+//         await AppDataSource.destroy();
+//       } catch (error) {
+//         console.error("Error detroying DB connections: ", error);
+//       }
+//       httpServer.close(() => {
+//         console.log("🛑 Server closed");
+//         process.exit(0);
+//       });
+//     });
   } catch (error) {
     console.error("❌ Error connecting to DB:", error);
     process.exit(1);
