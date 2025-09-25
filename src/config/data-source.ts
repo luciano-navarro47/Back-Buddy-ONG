@@ -18,8 +18,8 @@ const isCompiled = path.extname(__filename).includes(".js")
 
 const AppDataSource = new DataSource({
   type: "postgres",
-  ...(isProdEnv && process.env.DB_URL
-    ? { url: process.env.DB_URL }
+  ...(isProdEnv && process.env.DATABASE_URL
+    ? { url: process.env.DATABASE_URL }
     : {
         host: process.env.DB_HOST || "localhost",
         port: parseInt(process.env.DB_PORT || "5432"),
