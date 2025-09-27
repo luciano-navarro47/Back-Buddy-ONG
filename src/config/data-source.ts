@@ -28,7 +28,8 @@ const AppDataSource = new DataSource({
         database: isDevEnv ? process.env.TEST_DB_NAME : process.env.DB_NAME,
       }),
   synchronize: !isProdEnv,
-  ssl: isProdEnv ? { rejectUnauthorized: false } : false,
+  ssl: isProdEnv ? ({ rejectUnauthorized: false } as any) : false,
+  connectTimeoutMS: 30000,
   entities: [
     Product,
     User,

@@ -1,23 +1,33 @@
-# Base image with Node
-FROM node:18
+# build stage
+FROM node:18-alpine AS builder
+WORKDIR /app
 
-# Create app directory
-WORKDIR /usr/src/app
-
-# Copy package.json and package-lock.json
+# instalar dependencias para build
 COPY package*.json ./
+RUN npm ci
 
-# Install dependencies
-RUN npm install
-
-# Copy the rest of the code
+# copiar código y compilar
 COPY . .
-
-# Compile Typescript
 RUN npm run build
 
-# Expose port (Cloud Run will use it)
+# runtime stage
+FROM node:18-alpine
+WORKDIR /app
+ENV NODE_ENV=production
+ENV PORT=8080
+
+# instalar curl para healthcheck (opcional)
+RUN apk add --no-cache curl
+
+# copiar sólo lo necesario
+COPY package*.json ./
+RUN npm ci --only=production
+
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/package*.json ./
+
 EXPOSE 8080
 
-# Start command
+HEALTHCHECK --interval=30s --timeout=3s CMD curl -f http://localhost:${PORT}/health || exit 1
+
 CMD ["node", "dist/index.js"]
