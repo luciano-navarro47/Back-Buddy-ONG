@@ -12,7 +12,7 @@ const app = express();
 app.use(cookieParser());
 
 app.use(cors({
-  origin: "http://localhost:3000",
+  origin: "https://cilent-buddy-ong-801598852433.southamerica-east1.run.app",
   methods: "GET,POST,PUT,DELETE",
   allowedHeaders: "Content-Type,Authorization",
   credentials: true

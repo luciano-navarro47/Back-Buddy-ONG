@@ -26,7 +26,6 @@ Ejecutar el comando ```npm run test``` para ejecutar todos los tests mencionados
 ```npm run start``` 
 
 
-
 # DOCKER BUILD + CLOUD RUN (GCP)
 ## 1. Desde la carpeta del repo (donde está el Dockerfile)
 ```docker build -t miusuario/back-buddy-ong00:{newTag,. e.g.: 1.0.0} .``` 
