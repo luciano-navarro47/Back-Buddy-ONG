@@ -4,7 +4,6 @@ import server from "./app";
 import * as dotenv from "dotenv";
 dotenv.config();
 
-// const isProductionEnv = process.env.NODE_ENV === "production";
 const PORT = Number(process.env.PORT) || 8080;
 const HOST = '0.0.0.0';
 
@@ -24,18 +23,33 @@ const startServer = async () => {
       console.log(`🚀 Server running on http://${HOST}:${PORT}`);
     });
 
-//     process.on("SIGTERM", async () => {
-//       console.log("🛑 SIGTERM received, closing...");
-//       try {
-//         await AppDataSource.destroy();
-//       } catch (error) {
-//         console.error("Error detroying DB connections: ", error);
-//       }
-//       httpServer.close(() => {
-//         console.log("🛑 Server closed");
-//         process.exit(0);
-//       });
-//     });
+    // Graceful shutdown for Cloud Run
+    process.on("SIGTERM", async () => {
+      console.log("🛑 SIGTERM received, closing...");
+      try {
+        await AppDataSource.destroy();
+      } catch (error) {
+        console.error("Error destroying DB connections: ", error);
+      }
+      httpServer.close(() => {
+        console.log("🛑 Server closed");
+        process.exit(0);
+      });
+    });
+
+    process.on("SIGINT", async () => {
+      console.log("🛑 SIGINT received, closing...");
+      try {
+        await AppDataSource.destroy();
+      } catch (error) {
+        console.error("Error destroying DB connections: ", error);
+      }
+      httpServer.close(() => {
+        console.log("🛑 Server closed");
+        process.exit(0);
+      });
+    });
+
   } catch (error) {
     console.error("❌ Error connecting to DB:", error);
     process.exit(1);
