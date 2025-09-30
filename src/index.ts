@@ -4,8 +4,9 @@ import server from "./app";
 import * as dotenv from "dotenv";
 dotenv.config();
 
+const isProdEnv = process.env.NODE_ENV === "production";
+const HOST = isProdEnv ? "0.0.0.0" : "localhost";
 const PORT = Number(process.env.PORT) || 8080;
-const HOST = '0.0.0.0';
 
 const startServer = async () => {
   try {
@@ -49,7 +50,6 @@ const startServer = async () => {
         process.exit(0);
       });
     });
-
   } catch (error) {
     console.error("❌ Error connecting to DB:", error);
     process.exit(1);
