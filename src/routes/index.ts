@@ -7,14 +7,14 @@ import donationRouter from "./mercadopago/donation.route";
 import subscriptionRouter from "./mercadopago/subscription.route";
 import loginRouter from "./login.router";
 import webhookRouter from "./webhook.routes";
-import processPaymentRouter from "./mercadopago/process-payment.route";
+import preferenceRouter from "./mercadopago/preference.route";
 
 const router = Router();
 
 router.use("/donation", donationRouter);
 router.use("/login", loginRouter);
 router.use("/pet", petsRouter);
-router.use("process-payment", processPaymentRouter)
+router.use("/preference", preferenceRouter);
 router.use("/products", productRouter);
 router.use("/subscription", subscriptionRouter);
 router.use("/user", userRouter);
