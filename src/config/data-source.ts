@@ -10,11 +10,13 @@ import { Subscription } from "../entities/Subscription";
 import { CardSubscription } from "../entities/CardSubscription";
 import { Donation } from "../entities/Donation";
 import * as dotenv from "dotenv";
+import { Order } from "../entities/Order";
+import { OrderItem } from "../entities/OrderItem";
 dotenv.config();
 
 const isDevEnv = process.env.NODE_ENV === "development";
 const isProdEnv = process.env.NODE_ENV === "production";
-const isCompiled = path.extname(__filename).includes(".js")
+const isCompiled = path.extname(__filename).includes(".js");
 
 const AppDataSource = new DataSource({
   type: "postgres",
@@ -31,15 +33,17 @@ const AppDataSource = new DataSource({
   ssl: isProdEnv ? ({ rejectUnauthorized: false } as any) : false,
   connectTimeoutMS: 30000,
   entities: [
-    Product,
-    User,
-    Pet,
-    Veterinary,
-    Customer,
     Card,
-    Subscription,
-    Donation,
     CardSubscription,
+    Customer,
+    Donation,
+    Order,
+    OrderItem,
+    Pet,
+    Product,
+    Subscription,
+    User,
+    Veterinary,
   ],
   subscribers: isCompiled
     ? [path.join(__dirname, "../subscribers/*.js")]

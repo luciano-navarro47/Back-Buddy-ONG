@@ -1,8 +1,8 @@
 import { Router } from "express";
-import { createPreference } from "../../controller/mercadopago/preference.controller";
+import { createCartPreference } from "../../controller/mercadopago/cart.controller";
 
 const preferenceRouter = Router();
 
-preferenceRouter.post("/", createPreference);
+preferenceRouter.post("/", createCartPreference);
 
 export default preferenceRouter;

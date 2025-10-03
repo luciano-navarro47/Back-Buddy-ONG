@@ -8,7 +8,7 @@ const url = process.env.NGROK_DOM;
 
 export const createDonation = async (req: Request, res: Response) => {
   const { title, unit_price } = req.body.donation;
-
+  console.log("Create Donation");
   try {
     const donation = new Donation();
 
@@ -52,6 +52,7 @@ export const createDonation = async (req: Request, res: Response) => {
 export const donationDbUpdate = async (req: Request, res: Response) => {
   try {
     const { type, data } = req.body;
+    console.log("Donation Db Update: ", req.body);
 
     if (type === "payment") {
       const paymentId = data.id;
