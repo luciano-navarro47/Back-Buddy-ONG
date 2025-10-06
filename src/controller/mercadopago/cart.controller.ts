@@ -137,51 +137,32 @@ export const createCartPreference = async (req: Request, res: Response) => {
  * Handler del webhook que actualiza Orders cuando MP notifica un payment.
  * Lo llamarás desde /webhooks/notifications (ya lo tienes en routes).
  */
-export const orderDbUpdate = async (req: Request, res: Response) => {
-    try {
-      const { type, data } = req.body;
-      console.log("Order Db Update: ", req.body);
-      // Procesar solo payments (y merchant_order si querés)
-      if (type === "payment") {
-        const paymentId = data.id;
-        // obtener info del pago completo
-        const paymentInfo = await payments.get({ id: paymentId });
-  
-        // external_reference que mandamos cuando creamos la preferencia
-        const externalReference = paymentInfo.external_reference;
-        if (!externalReference) {
-          console.warn("orderDbUpdate: payment without external_reference", paymentInfo);
-          return res.sendStatus(200);
-        }
-  
-        // Buscar order por external_reference
-        const orderRepo = AppDataSource.getRepository(Order);
-        const order = await orderRepo.findOne({ where: { external_reference: externalReference }, relations: ["items"] });
-  
-        if (!order) {
-          console.warn("orderDbUpdate: order not found for external_reference", externalReference);
-          return res.sendStatus(200);
-        }
-  
-        // Actualizar estatus según MP
-        const mpStatus = paymentInfo.status; // 'approved', 'rejected', 'in_process', ...
-        if (mpStatus === "approved") order.status = OrderStatus.APPROVED;
-        else if (mpStatus === "rejected" || mpStatus === "cancelled") order.status = OrderStatus.REJECTED;
-        else order.status = OrderStatus.PENDING;
-  
-        order.payment_id = String(paymentId);
-        order.raw_response = paymentInfo;
-        await orderRepo.save(order);
-  
-        // acá podes desencolar tareas: envío de email, disminuir stock, etc.
-  
-        return res.sendStatus(200);
-      }
-  
-      // Si no es payment, solo devolvemos 200 (evitar reintentos)
-      return res.sendStatus(200);
-    } catch (error) {
-      console.error("orderDbUpdate error", error);
-      return res.status(500).json({ error: "Webhook processing failed" });
-    }
-  };
+export const orderDbUpdate = async (req: Request) => {
+  const { type, data } = req.body;
+  console.log("Order Db Update: ", req.body);
+
+  if (type === "payment") {
+    const paymentId = data.id;
+    const paymentInfo = await payments.get({ id: paymentId });
+
+    const externalReference = paymentInfo.external_reference;
+    if (!externalReference) return;
+
+    const orderRepo = AppDataSource.getRepository(Order);
+    const order = await orderRepo.findOne({
+      where: { external_reference: externalReference },
+      relations: ["items"],
+    });
+    if (!order) return;
+
+    const mpStatus = paymentInfo.status;
+    if (mpStatus === "approved") order.status = OrderStatus.APPROVED;
+    else if (mpStatus === "rejected" || mpStatus === "cancelled") order.status = OrderStatus.REJECTED;
+    else order.status = OrderStatus.PENDING;
+
+    order.payment_id = String(paymentId);
+    order.raw_response = paymentInfo;
+    await orderRepo.save(order);
+  }
+  // Nada de res.send aquí
+};

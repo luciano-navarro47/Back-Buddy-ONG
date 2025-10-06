@@ -53,7 +53,7 @@ export const createSubscription = async (req: Request, res: Response) => {
   }
 };
 
-export const susbscriptionDbUpdate = async (req: Request, res: Response) => {
+export const susbscriptionDbUpdate = async (req: Request) => {
   try {
 
     const preapprovalId = req.body.data.id;
@@ -77,8 +77,7 @@ export const susbscriptionDbUpdate = async (req: Request, res: Response) => {
       await subscriptionRepo.save(subscriptionRecord);
 
     }
-    res.sendStatus(200);
   } catch (error) {
-    handleHttpError(res, error);
+    console.error("susbscriptionDbUpdate error general:", error);
   }
 };

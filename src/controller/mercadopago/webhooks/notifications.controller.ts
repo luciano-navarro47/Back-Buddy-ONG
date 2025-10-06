@@ -10,20 +10,21 @@ export const notificationsRecieved = async (req: Request, res: Response) => {
 
   try {
     if (type === "payment" || type === "merchant_order") {
-      await donationDbUpdate(req, res);
-      await orderDbUpdate(req, res);
-      return; // ya se envió la respuesta dentro de los helpers
+      await donationDbUpdate(req);
+      await orderDbUpdate(req);
+      return res.sendStatus(200);
     }
 
     if (type === "subscription_preapproval") {
-      await susbscriptionDbUpdate(req, res);
-      return;
+      await susbscriptionDbUpdate(req); 
+      return res.sendStatus(200);
     }
 
     console.log("Webhook: tipo no manejado:", type);
     return res.sendStatus(200);
   } catch (error) {
     console.error("notificationsRecieved error general:", error);
-    return res.sendStatus(200);
+    handleHttpError(res, error);
+    return res.sendStatus(200); // siempre 200 para MP
   }
 };
