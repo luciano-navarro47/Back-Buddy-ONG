@@ -18,7 +18,12 @@ app.use(
       ? "https://cilent-buddy-ong-801598852433.southamerica-east1.run.app"
       : "http://localhost:3000",
     methods: "GET,POST,PUT,DELETE",
-    allowedHeaders: "Content-Type,Authorization",
+    allowedHeaders: [
+      "Content-Type",
+      "Authorization",
+      "Cache-Control",
+      "X-Requested-With",
+    ],
     credentials: true,
   })
 );
