@@ -5,6 +5,7 @@ import { encrypt, verify } from "../utils/bcrypt.handler";
 import { sendEmail } from "../utils/sendEmail";
 import rateLimit from "express-rate-limit";
 import { In } from "typeorm";
+import { generateToken } from "../utils/jwt.utils";
 
 export const createUser = async (req: Request, res: Response) => {
   const { first_name, last_name, email, username, phone, password } = req.body;
@@ -23,7 +24,31 @@ export const createUser = async (req: Request, res: Response) => {
 
     await newUser.save();
     await sendEmail(email, first_name);
-    res.status(200).send(newUser);
+
+    const token: string = generateToken(newUser);
+
+    res.cookie("jwt", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 24 * 60 * 60 * 1000,
+    });
+
+    const safeUser = {
+      id: newUser.id,
+      email: newUser.email,
+      role: newUser.role,
+      phone: newUser.phone,
+      first_name: newUser.first_name,
+      last_name: newUser.last_name,
+      username: newUser.username,
+    }
+
+    return res.status(201).json({
+      message: "User created",
+      token,
+      user: safeUser,
+    });
   } catch (error) {
     handleHttpError(res, error);
   }

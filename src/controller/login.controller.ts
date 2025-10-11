@@ -14,7 +14,7 @@ export const loginUser = async (req: Request, res: Response) => {
     const token: string = generateToken(user);
     res.cookie('jwt', token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "test",
+      secure: process.env.NODE_ENV === "production",
       sameSite: 'lax',
       maxAge: 24 * 60 * 60 * 1000, // 24h
     })
