@@ -53,7 +53,7 @@ export const createSubscription = async (req: Request, res: Response) => {
   }
 };
 
-export const susbscriptionDbUpdate = async (req: Request) => {
+export const subscriptionDbUpdate = async (req: Request) => {
   try {
 
     const preapprovalId = req.body.data.id;

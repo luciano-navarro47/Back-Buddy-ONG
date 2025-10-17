@@ -1,30 +1,43 @@
 import { Request, Response } from "express";
 import { donationDbUpdate } from "../donation.controller";
-import { susbscriptionDbUpdate } from "../subscription.controller";
-import { orderDbUpdate } from "../cart.controller";
+import { subscriptionDbUpdate } from "../subscription.controller";
+import { orderMerchantDbUpdate } from "../order-merchant.controller";
 import { handleHttpError } from "../../../utils/error.handler";
 
 export const notificationsRecieved = async (req: Request, res: Response) => {
   const type = req.body?.type;
   console.log("Webhook recibido:", req.body);
 
+  if (!res.headersSent) {
+    res.sendStatus(200);
+  }
+
   try {
-    if (type === "payment" || type === "merchant_order") {
-      await donationDbUpdate(req);
-      await orderDbUpdate(req);
-      return res.sendStatus(200);
+    switch (true) {
+      case type.includes("payment"): {
+        await donationDbUpdate(req);
+        break;
+      }
+      case type.includes("topic_merchant_order_wh"):
+        await orderMerchantDbUpdate
+      default:
+        break;
     }
+    // if (type === "payment" || type === "topic_merchant_order_wh") {
+    //   // await donationDbUpdate(req);
+    //   await orderDbUpdate(req);
+    //   return
+    // }
 
-    if (type === "subscription_preapproval") {
-      await susbscriptionDbUpdate(req); 
-      return res.sendStatus(200);
-    }
+    // if (type === "subscription_preapproval") {
+    //   await subscriptionDbUpdate(req);
+    //   return
+    // }
 
-    console.log("Webhook: tipo no manejado:", type);
-    return res.sendStatus(200);
+    // console.log("Webhook: tipo no manejado:", type);
+    return;
   } catch (error) {
     console.error("notificationsRecieved error general:", error);
-    handleHttpError(res, error);
-    return res.sendStatus(200); // siempre 200 para MP
+    return;
   }
 };

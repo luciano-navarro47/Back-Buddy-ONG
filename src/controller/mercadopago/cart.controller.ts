@@ -1,6 +1,5 @@
-// src/controllers/mercadopago/cart.controller.ts
 import { Request, Response } from "express";
-import { preference, payments } from "../../config/mercado-pago";
+import { preference } from "../../config/mercado-pago";
 import { handleHttpError } from "../../utils/error.handler";
 import { Order, Status as OrderStatus } from "../../entities/Order"; 
 import { OrderItem } from "../../entities/OrderItem";
@@ -28,8 +27,8 @@ export const createCartPreference = async (req: Request, res: Response) => {
     const mpItems: any[] = [];
     let totalAmount = 0;
     for (const p of cart) {
-      const quantity = Number(p.amount ?? p.quantity ?? 1);
-      const unit_price = Number(p.price ?? p.unit_price);
+      const quantity = Number(p.quantity);
+      const unit_price = Number(p.unit_price);
 
       if (!p.id || !p.name || Number.isNaN(unit_price) || Number.isNaN(quantity) || unit_price < 0 || quantity <= 0) {
         return res.status(400).json({ error: "Each cart item must have id, name, unit_price (>=0), and quantity (>0)" });
@@ -59,9 +58,10 @@ export const createCartPreference = async (req: Request, res: Response) => {
     order.currency = currency_id;
     order.discount_amount = 0;
     order.shipping_cost = Number(shipping_cost || 0);
-    order.raw_response = {}; // placeholder, lo actualizaremos luego
     order.buyer_email = (userInfo?.email) ?? null;
-    order.buyer_name = (userInfo?.userName);
+    order.buyer_name = (userInfo?.fullName);
+    order.billing_address = (userInfo?.billing_address) ?? null;
+    order.raw_response = {}; // placeholder, lo actualizaremos luego
 
     // persistir order inicial (no items aún)
     await orderRepo.save(order);
@@ -73,7 +73,7 @@ export const createCartPreference = async (req: Request, res: Response) => {
       item.product_id = p.id; // espera UUID
       item.name = p.name;
       item.unit_price = Number(p.price);
-      item.quantity = Number(p.amount ?? 1);
+      item.quantity = Number(p.quantity ?? 1);
       item.discount = 0;
       item.subtotal = item.unit_price * item.quantity;
       item.order = order;
@@ -94,15 +94,14 @@ export const createCartPreference = async (req: Request, res: Response) => {
         pending: `${FRONTEND_BASE2}/pending`,
       },
       notification_url: WEBHOOK_URL,
-      auto_return: "approved",
+      auto_return: "all",
       statement_descriptor: "Buddy ONG",
+      operation_type: "regular_payment",
       shipments: {
         // opcional; si no entregás, podés removerlo
         cost: Number(shipping_cost || 0),
         mode: "not_specified",
       },
-      // Remove additional_info or make it a string
-      // additional_info: JSON.stringify({ items: mpItems }),
     };
 
     // idempotency: usa header o genera uno (reintentos seguros)
@@ -130,39 +129,4 @@ export const createCartPreference = async (req: Request, res: Response) => {
   } catch (error) {
     return handleHttpError(res, error);
   }
-};
-
-
-/**
- * Handler del webhook que actualiza Orders cuando MP notifica un payment.
- * Lo llamarás desde /webhooks/notifications (ya lo tienes en routes).
- */
-export const orderDbUpdate = async (req: Request) => {
-  const { type, data } = req.body;
-  console.log("Order Db Update: ", req.body);
-
-  if (type === "payment") {
-    const paymentId = data.id;
-    const paymentInfo = await payments.get({ id: paymentId });
-
-    const externalReference = paymentInfo.external_reference;
-    if (!externalReference) return;
-
-    const orderRepo = AppDataSource.getRepository(Order);
-    const order = await orderRepo.findOne({
-      where: { external_reference: externalReference },
-      relations: ["items"],
-    });
-    if (!order) return;
-
-    const mpStatus = paymentInfo.status;
-    if (mpStatus === "approved") order.status = OrderStatus.APPROVED;
-    else if (mpStatus === "rejected" || mpStatus === "cancelled") order.status = OrderStatus.REJECTED;
-    else order.status = OrderStatus.PENDING;
-
-    order.payment_id = String(paymentId);
-    order.raw_response = paymentInfo;
-    await orderRepo.save(order);
-  }
-  // Nada de res.send aquí
 };
