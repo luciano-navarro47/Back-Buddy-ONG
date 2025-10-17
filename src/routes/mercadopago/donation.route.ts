@@ -1,7 +1,7 @@
 import { Router } from "express";
 import {
   createDonation,
-} from "../controller/mercadopago/donation.controller";
+} from "../../controller/mercadopago/donation.controller";
 
 const donationRouter = Router(); 
 

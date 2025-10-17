@@ -1,7 +1,7 @@
 import { Router } from "express";
 import {
   createSubscription,
-} from "../controller/mercadopago/subscription.controller";
+} from "../../controller/mercadopago/subscription.controller";
 
 const subscriptionRouter = Router();
 
