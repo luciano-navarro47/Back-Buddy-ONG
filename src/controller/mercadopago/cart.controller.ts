@@ -125,27 +125,26 @@ export const createCartPreference = async (req: Request, res: Response) => {
       orderItems.push(item);
     }
 
-    // asignar items y guardar (cascade guardará OrderItem)
     order.items = orderItems;
     await orderRepo.save(order);
 
-    // idempotency: usa header o genera uno (reintentos seguros)
+    // idempotency: use header or generate one (secure attempts)
     const idempotencyKey =
       (req.headers["x-idempotency-key"] as string) || randomUUID();
 
-    // --- Crear preferencia en MP ---
+    // --- Create Preference in MP ---
     const mpResponse = await preference.create({
       body: prefBody,
       requestOptions: { idempotencyKey },
     });
 
-    // --- Actualizar order con datos de la preferencia MP ---
+    // --- Update order with preference MP data ---
     // Remove preference_id since it doesn't exist in Order entity
     order.merchant_order_id = mpResponse?.collector_id?.toString() ?? undefined;
     order.raw_response = mpResponse;
     await orderRepo.save(order);
 
-    // --- Responder al frontend con init_point y preference_id ---
+    // --- Return init_point and preference_id to the client side ---
     return res.status(200).json({
       init_point: mpResponse.init_point,
       preference_id: mpResponse.id,
