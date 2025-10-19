@@ -47,29 +47,31 @@ export const createPet = async (req: Request, res: Response) => {
   const { size, specie, age, img, detail, area, sex, status, userId } =
     req.body;
 
-  try {
-    const searchUser = await User.find({
-      where: [{ id: userId }],
-    });
+  console.log("BODTY: ", req.body)
 
-    const newPet = new Pet();
-    newPet.size = size;
-    newPet.specie = specie;
-    newPet.age = age;
-    newPet.img = img;
-    newPet.detail = detail;
-    newPet.area = area;
-    newPet.sex = sex;
-    newPet.status = status;
-    newPet.user = searchUser[0];
+  // try {
+  //   const searchUser = await User.find({
+  //     where: [{ id: userId }],
+  //   });
 
-    await newPet.save();
+  //   const newPet = new Pet();
+  //   newPet.size = size;
+  //   newPet.specie = specie;
+  //   newPet.age = age;
+  //   newPet.img = img;
+  //   newPet.detail = detail;
+  //   newPet.area = area;
+  //   newPet.sex = sex;
+  //   newPet.status = status;
+  //   newPet.user = searchUser[0];
 
-    console.log("newPET:", newPet);
-    return res.status(200).send(newPet);
-  } catch (error) {
-    handleHttpError(res, error);
-  }
+  //   await newPet.save();
+
+  //   console.log("newPET:", newPet);
+  //   return res.status(200).send(newPet);
+  // } catch (error) {
+  //   handleHttpError(res, error);
+  // }
 };
 
 export const updatePet = async (req: Request, res: Response) => {
