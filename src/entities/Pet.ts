@@ -7,6 +7,7 @@ import {
   BaseEntity,
   ManyToOne,
   JoinColumn,
+  Check,
 } from "typeorm";
 import { User } from "./User";
 
@@ -28,6 +29,9 @@ export enum CaseStatus {
 }
 
 @Entity({ name: "pet" })
+@Check(`jsonb_array_length(images) = 3`)
+@Check(`name IS NULL OR length(name) >= 3`)
+@Check('number IS NULL OR (number >= 10 AND number <= 99999)')
 export class Pet extends BaseEntity {
   @PrimaryGeneratedColumn("uuid")
   id!: string;
@@ -44,15 +48,24 @@ export class Pet extends BaseEntity {
   @Column({ type: "enum", enum: Object.values(Age) })
   age!: Age;
 
-  // Uso jsonb para compatibilidad cross-DB (Postgres bien soportado). Alternativa: text[] en Postgres.
-  @Column({ type: "jsonb", default: () => "'[]'" })
+  // jsonb to obtain compatibility with cross-DB (Postgres well supported). Alternative: text[] in Postgres.
+  @Column({ type: "jsonb", nullable: false, default: () => "'[]'" })
   images!: string[];
+
+  @Column({ type: "jsonb", nullable: true, default: () => "'[]'" })
+  videos?: string[];
 
   @Column({ type: "text", nullable: true })
   detail?: string;
 
-  @Column({ type: "text", nullable: true })
-  area?: string;
+  @Column({ type: "text", nullable: false })
+  street!: string;
+  
+  @Column({ type: "int", nullable: true })
+  number?: number;
+  
+  @Column({ type: "text", nullable: false })
+  city!: string;  
 
   @Column({ type: "enum", enum: Object.values(Sex), nullable: true })
   sex?: Sex;
@@ -63,13 +76,18 @@ export class Pet extends BaseEntity {
   @Column({ type: "enum", enum: Object.values(CaseStatus), default: CaseStatus.OPEN })
   caseStatus!: CaseStatus;
 
-  @ManyToOne(() => User, (user) => user.pets /* no cascade by default */)
+  @ManyToOne(() => User, (user) => user.pets)
   @JoinColumn({ name: "userId" })
   user?: User;
 
-  @Column({ type: 'timestamp', nullable: true }) foundAt?: Date;
-  @Column({ type: 'timestamp', nullable: true }) resolvedAt?: Date;
-  @Column({ type: 'uuid', nullable: true }) adopterId?: string;
+  @Column({ type: 'timestamp', nullable: true }) 
+  foundAt?: Date;
+
+  @Column({ type: 'timestamp', nullable: true }) 
+  resolvedAt?: Date;
+
+  @Column({ type: 'uuid', nullable: true }) 
+  adopterId?: string;
 
   @CreateDateColumn()
   createdAt!: Date;
