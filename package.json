@@ -11,8 +11,10 @@
     "test:watch": "cross-env NODE_ENV=test jest --watchAll",
     "seed": "ts-node src/config/seed.ts",
     "typeorm": "ts-node ./node_modules/typeorm/cli.js",
+    "migration:create": "npm run typeorm -- migration:create src/migrations/new",
     "migration:generate": "npm run typeorm -- migration:generate src/migrations/init -d src/config/data-source.ts",
-    "migration:run": "npm run typeorm -- migration:run -d src/config/data-source.ts"
+    "migration:run": "npm run typeorm -- migration:run -d src/config/data-source.ts",
+    "migration:revert": "npm run typeorm -- migration:revert src/migrations/revert -d src/config/data-source.ts"
   },
   "repository": {
     "type": "git",
