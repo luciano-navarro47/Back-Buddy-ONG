@@ -44,34 +44,54 @@ export const getPetsByUserId = async (req: Request, res: Response) => {
 };
 
 export const createPet = async (req: Request, res: Response) => {
-  const { size, specie, age, img, detail, area, sex, status, userId } =
-    req.body;
+  const {
+    name,
+    size,
+    specie,
+    age,
+    images,
+    videos,
+    detail,
+    sex,
+    caseStatus,
+    postType,
+    city,
+    street,
+    number,
+    userId,
+  } = req.body;
 
-  console.log("BODTY: ", req.body)
+  // TO DO: create a file and export here the Pet.dto class
 
-  // try {
-  //   const searchUser = await User.find({
-  //     where: [{ id: userId }],
-  //   });
+  try {
+    const searchUser = await User.find({
+      where: [{ id: userId }],
+    });
 
-  //   const newPet = new Pet();
-  //   newPet.size = size;
-  //   newPet.specie = specie;
-  //   newPet.age = age;
-  //   newPet.img = img;
-  //   newPet.detail = detail;
-  //   newPet.area = area;
-  //   newPet.sex = sex;
-  //   newPet.status = status;
-  //   newPet.user = searchUser[0];
+    const newPet = new Pet();
+    newPet.name = name;
+    newPet.size = size;
+    newPet.specie = specie;
+    newPet.age = age;
+    newPet.images = images;
+    newPet.street = street;
+    newPet.city = city;
+    newPet.number = number;
+    newPet.videos = videos;
+    newPet.postType = postType;
+    newPet.caseStatus = caseStatus;
+    newPet.detail = detail;
+    newPet.sex = sex;
+    newPet.user = searchUser[0];
 
-  //   await newPet.save();
+    console.log("newPET:", newPet);
 
-  //   console.log("newPET:", newPet);
-  //   return res.status(200).send(newPet);
-  // } catch (error) {
-  //   handleHttpError(res, error);
-  // }
+    await newPet.save();
+
+    return res.status(200).send(newPet);
+  } catch (error) {
+    handleHttpError(res, error);
+  }
 };
 
 export const updatePet = async (req: Request, res: Response) => {

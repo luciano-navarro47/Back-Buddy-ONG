@@ -43,7 +43,7 @@ export enum CaseStatus {
 }
 
 @Entity({ name: "pet" })
-@Check(`jsonb_array_length(images) = 3`)
+@Check(`array_length(images, 1) = 3`)
 @Check(`name IS NULL OR length(name) >= 3`)
 @Check("number IS NULL OR (number >= 10 AND number <= 99999)")
 export class Pet extends BaseEntity {
