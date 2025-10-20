@@ -3,6 +3,10 @@ import { Pet } from "../entities/Pet";
 import { User } from "../entities/User";
 import { NotFoundError, handleHttpError } from "../utils/error.handler";
 
+// TO DO: create a file and export here the Pet.dto class
+// TO DO: create a file and export here the Pet.dto class
+// TO DO: create a file and export here the Pet.dto class
+
 export const getAllPets = async (req: Request, res: Response) => {
   try {
     const pets = await Pet.find({ relations: ["user"] });
@@ -61,8 +65,6 @@ export const createPet = async (req: Request, res: Response) => {
     userId,
   } = req.body;
 
-  // TO DO: create a file and export here the Pet.dto class
-
   try {
     const searchUser = await User.find({
       where: [{ id: userId }],
@@ -83,8 +85,6 @@ export const createPet = async (req: Request, res: Response) => {
     newPet.detail = detail;
     newPet.sex = sex;
     newPet.user = searchUser[0];
-
-    console.log("newPET:", newPet);
 
     await newPet.save();
 
