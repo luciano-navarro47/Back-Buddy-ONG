@@ -47,6 +47,9 @@ export class Product extends BaseEntity {
   @Column()
   stock!: number;
 
+  @Column({ type: "boolean", default: true})
+  is_active!: boolean;
+
   @CreateDateColumn()
   createdAt!: Date;
   
