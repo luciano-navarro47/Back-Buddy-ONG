@@ -9,8 +9,12 @@ Herramientas principales del backend:
 - NodeJS
 - PostgreSQL
 
-## Generar y ejecutar migraciones de Typeorm
-```npm run migration:generate``` y luego ```npm run migration:run``` 
+## Crear y ejecutar migraciones de Typeorm (Opcional: generar)
+Crear migración vacía: ```npm run migration:create src/migrations/<migration-file-name>```
+
+Ejecutar la última migración creada: ```npm run migration:run``` 
+
+(Opcional) Generar: ```npm run migration:generate```
 
 ## Generar datos ficticios en la DB
 Ejecutar el comando ```npm run seed``` para poblar la base de datos de PostgresSQL con registros ficticios para algunas tablas.
