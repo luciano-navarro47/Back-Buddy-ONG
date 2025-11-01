@@ -1,12 +1,28 @@
-import { check, validationResult, CustomValidator } from "express-validator";
+import {
+  check,
+  validationResult,
+  CustomValidator,
+  Meta,
+} from "express-validator";
 import { Request, Response, NextFunction } from "express";
 import { User } from "../../entities/User";
 
-const isValidEmail: CustomValidator = async (email): Promise<boolean> => {
-  const result = await User.find({ where: [{ email: email }] });
-  if (result.length > 0) {
+export const isValidEmail: CustomValidator = async (
+  email: string,
+  meta: Meta
+): Promise<boolean> => {
+  const req = meta?.req as Request | undefined;
+  const userId = req?.params?.id ?? null;
+
+  const normalized = String(email).trim().toLowerCase();
+  const existingUser = await User.createQueryBuilder("u")
+    .where("LOWER(u.email) = :email", { email: normalized })
+    .getOne();
+
+  if (existingUser && existingUser.id !== userId) {
     throw new Error("The Email is already in use");
   }
+
   return true;
 };
 
@@ -53,36 +69,33 @@ export const userValidator = [
     .isLength({ min: 3, max: 10 }),
 ];
 
-export const   oauthUserValidator = [
+export const oauthUserValidator = [
   check("first_name")
-  .exists()
-  .bail()
-  .notEmpty()
-  .bail()
-  .isLength({ min: 1, max: 50 }),
+    .exists()
+    .bail()
+    .notEmpty()
+    .bail()
+    .isLength({ min: 1, max: 50 }),
 
-check("last_name")
-  .exists()
-  .bail()
-  .notEmpty()
-  .bail()
-  .isLength({ min: 1, max: 50 }),
+  check("last_name")
+    .exists()
+    .bail()
+    .notEmpty()
+    .bail()
+    .isLength({ min: 1, max: 50 }),
 
-check("email")
-  .exists()
-  .bail()
-  .notEmpty()
-  .bail()
-  .isLength({ min: 3, max: 50 })
-  .bail()
-  .isEmail()
-  .bail()
-  .custom(isValidEmail),
+  check("email")
+    .exists()
+    .bail()
+    .notEmpty()
+    .bail()
+    .isLength({ min: 3, max: 50 })
+    .bail()
+    .isEmail()
+    .bail()
+    .custom(isValidEmail),
 
-check("auth0Sub")
-  .exists()
-  .bail()
-  .notEmpty()
+  check("auth0Sub").exists().bail().notEmpty(),
 ];
 export const validateRequest = (
   req: Request,
