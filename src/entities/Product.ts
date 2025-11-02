@@ -41,11 +41,14 @@ export class Product extends BaseEntity {
   @Column()
   description?: string;
 
-  @Column("decimal", { precision: 7, scale: 2 })
+  @Column("decimal", { precision: 10, scale: 2 })
   price!: number;
 
   @Column()
   stock!: number;
+
+  @Column({ type: "boolean", default: true})
+  is_active!: boolean;
 
   @CreateDateColumn()
   createdAt!: Date;

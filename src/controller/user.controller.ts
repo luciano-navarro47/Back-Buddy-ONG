@@ -5,6 +5,8 @@ import { encrypt, verify } from "../utils/bcrypt.handler";
 import { sendEmail } from "../utils/sendEmail";
 import rateLimit from "express-rate-limit";
 import { In } from "typeorm";
+import { generateToken } from "../utils/jwt.utils";
+import { isValidEmail } from "../middlewares/validators/user.validator";
 
 export const createUser = async (req: Request, res: Response) => {
   const { first_name, last_name, email, username, phone, password } = req.body;
@@ -23,7 +25,31 @@ export const createUser = async (req: Request, res: Response) => {
 
     await newUser.save();
     await sendEmail(email, first_name);
-    res.status(200).send(newUser);
+
+    const token: string = generateToken(newUser);
+
+    res.cookie("jwt", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 24 * 60 * 60 * 1000,
+    });
+
+    const safeUser = {
+      id: newUser.id,
+      email: newUser.email,
+      role: newUser.role,
+      phone: newUser.phone,
+      first_name: newUser.first_name,
+      last_name: newUser.last_name,
+      username: newUser.username,
+    };
+
+    return res.status(201).json({
+      message: "User created",
+      token,
+      user: safeUser,
+    });
   } catch (error) {
     handleHttpError(res, error);
   }
@@ -61,14 +87,29 @@ export const updateUser = async (req: Request, res: Response) => {
   const { id } = req.params;
   const { first_name, last_name, email, username, phone, newPassword } =
     req.body;
+
   try {
     const user = await User.findOneBy({ id: id });
     if (!user) throw new NotFoundError(`User ${id} is not found`);
 
+    if (typeof email !== "undefined" && email !== user.email) {
+      const normalized = String(email).trim().toLowerCase();
+      const existing = await User.createQueryBuilder("u")
+        .where("LOWER(u.email) = :email", { email: normalized })
+        .andWhere("u.id != :id", { id })
+        .getOne();
+
+      if (existing) {
+        return res
+          .status(409)
+          .json({ ok: false, message: "Email already in use by another user" });
+      }
+    }
+
     const toUpdate: Partial<User> = {
       first_name,
       last_name,
-      email,
+      email: email ? String(email).trim().toLowerCase() : undefined,
       username,
       phone,
     };
@@ -77,7 +118,23 @@ export const updateUser = async (req: Request, res: Response) => {
       const hashed = await encrypt(newPassword);
       toUpdate.password = hashed;
     }
-    await User.update({ id: id }, toUpdate);
+
+    try {
+      await User.update({ id: id }, toUpdate);
+    } catch (err) {
+      const driverErr: any = (err as any).driverError ?? err;
+      const msg = (driverErr?.message ?? "").toString().toLowerCase();
+      if (
+        msg.includes("duplicate") ||
+        msg.includes("unique") ||
+        driverErr?.code === "23505"
+      ) {
+        return res
+          .status(409)
+          .json({ ok: false, message: "Email already in use" });
+      }
+      throw err;
+    }
     res.status(200).send({ ok: true, message: "User Updated" });
   } catch (error) {
     handleHttpError(res, error);
@@ -108,9 +165,11 @@ export const bulkSetUsersStatus = async (req: Request, res: Response) => {
       await User.update({ id }, { status });
     }
 
-    return res.status(200).json({ message: "All user's status updated correctly."})
+    return res
+      .status(200)
+      .json({ message: "All user's status updated correctly." });
   } catch (error) {
-    handleHttpError(res, error)
+    handleHttpError(res, error);
   }
 };
 

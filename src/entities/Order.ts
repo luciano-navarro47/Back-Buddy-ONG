@@ -19,7 +19,6 @@ export enum Status {
 @Entity()
 export class Order extends BaseEntity {
     @PrimaryGeneratedColumn("uuid") id!: string;
-    @Column({ nullable: true }) payment_id?: string;
     @Column() external_reference!: string;
     @Column({ nullable: true }) merchant_order_id?: string;
     @Column("uuid") user_id!: string;

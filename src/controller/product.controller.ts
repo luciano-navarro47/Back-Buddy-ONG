@@ -7,6 +7,7 @@ import {
 } from "../utils/error.handler";
 import AppDataSource from "../config/data-source";
 import { In } from "typeorm";
+import { OrderItem } from "../entities/OrderItem";
 
 export const getAllProducts = async (req: Request, res: Response) => {
   try {
@@ -89,16 +90,40 @@ export const updateProduct = async (req: Request, res: Response) => {
   }
 };
 
-export const bulkDeleteProducts = async (req: Request, res: Response) => {
+export const bulkSoftDeleteProducts = async (req: Request, res: Response) => {
   try {
     const { idsToDelete } = req.body;
-    const productRepository = AppDataSource.getRepository(Product);
-    await productRepository.delete({ id: In(idsToDelete) });
-    return res.status(200).send({
-      message: "Products deleted successfully",
-      deletedCount: idsToDelete.length,
+
+    if (!Array.isArray(idsToDelete) || idsToDelete.length === 0) {
+      return res
+        .status(400)
+        .json({ message: "idsToDelete must be a non-empty array." });
+    }
+
+    const orderItemRepo = AppDataSource.getRepository(OrderItem);
+
+    const relatedOrderItemsCount = await orderItemRepo
+      .createQueryBuilder("order_item")
+      .where("order_item.product_id IN (:...ids)", { ids: idsToDelete })
+      .getCount();
+
+    const result = await AppDataSource.transaction(async (manager) => {
+      const updateRes = await manager.update(
+        Product,
+        { id: In(idsToDelete) },
+        { is_active: false }
+      );
+      return { affected: updateRes.affected ?? 0 };
+    });
+
+    return res.status(200).json({
+      message: "Products soft-deleted successfully",
+      requested: idsToDelete.length,
+      affected: result.affected,
+      relatedOrderItems: relatedOrderItemsCount,
     });
   } catch (error) {
-    handleHttpError(res, error);
+    console.error("bulkSoftDeleteProducts error:", error);
+    return handleHttpError(res, error);
   }
 };

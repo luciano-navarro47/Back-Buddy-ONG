@@ -11,8 +11,10 @@
     "test:watch": "cross-env NODE_ENV=test jest --watchAll",
     "seed": "ts-node src/config/seed.ts",
     "typeorm": "ts-node ./node_modules/typeorm/cli.js",
+    "migration:create": "npm run typeorm -- migration:create",
     "migration:generate": "npm run typeorm -- migration:generate src/migrations/init -d src/config/data-source.ts",
-    "migration:run": "npm run typeorm -- migration:run -d src/config/data-source.ts"
+    "migration:run": "npm run typeorm -- migration:run -d src/config/data-source.ts",
+    "migration:revert": "npm run typeorm -- migration:revert src/migrations/revert -d src/config/data-source.ts"
   },
   "repository": {
     "type": "git",
@@ -58,7 +60,7 @@
     "express-validator": "^6.14.3",
     "jsonwebtoken": "^9.0.2",
     "jwks-rsa": "^3.0.1",
-    "mercadopago": "^2.3.0",
+    "mercadopago": "^2.9.0",
     "morgan": "^1.10.1",
     "node-fetch": "^3.3.2",
     "nodemailer": "^6.10.0",

@@ -2,7 +2,7 @@ import { Router } from "express";
 // import { validatorPostProduct } from "../middlewares/validators/product.validator";
 import {
 	createProduct,
-	bulkDeleteProducts,
+	bulkSoftDeleteProducts as bulkDeleteProducts,
 	getAllProducts,
 	getProductId,
 	updateProduct,

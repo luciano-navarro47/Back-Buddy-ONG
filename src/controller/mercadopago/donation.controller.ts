@@ -8,7 +8,6 @@ const url = process.env.NGROK_DOM;
 
 export const createDonation = async (req: Request, res: Response) => {
   const { title, unit_price } = req.body.donation;
-
   try {
     const donation = new Donation();
 
@@ -49,31 +48,26 @@ export const createDonation = async (req: Request, res: Response) => {
   }
 };
 
-export const donationDbUpdate = async (req: Request, res: Response) => {
-  try {
-    const { type, data } = req.body;
+export const donationDbUpdate = async (req: Request) => {
+  const { type, data } = req.body;
 
-    if (type === "payment") {
-      const paymentId = data.id;
-      const paymentInfo = await payments.get({ id: paymentId });
-      const donationRepo = AppDataSource.getRepository(Donation);
-      const donation = await donationRepo.findOneBy({
-        id: paymentInfo.external_reference,
-      });
-      if (donation) {
-        const status = paymentInfo.status;
-        donation.status =
-          status === "rejected"
-            ? Status.FAILURE
-            : status === "approved"
-            ? Status.APPROVED
-            : Status.PENDING;
-        donation.payment_id = paymentId;
-        await donationRepo.save(donation);
+  if (type === "payment") {
+    const paymentId = data.id;
+    const paymentInfo = await payments.get({ id: paymentId });
+    const donationRepo = AppDataSource.getRepository(Donation);
+    const donation = await donationRepo.findOneBy({
+      id: paymentInfo.external_reference,
+    });
+    if (donation) {
+      const status = paymentInfo.status;
+      donation.status =
+        status === "rejected"
+          ? Status.FAILURE
+          : status === "approved"
+          ? Status.APPROVED
+          : Status.PENDING;
+      donation.payment_id = paymentId;
+      await donationRepo.save(donation);
     }
-  }
-    res.sendStatus(200); 
-  } catch (error) {
-    handleHttpError(res, error);
   }
 };

@@ -12,7 +12,7 @@ import { ExtendedPreApprovalResponse } from "../../types/mercadopago";
 const url = process.env.NGROK_DOM;
 export const createSubscription = async (req: Request, res: Response) => {
   const { email, amount, currency_id } = req.body;
-
+  console.log("Create Subscription");
   try {
     const subscription = new Subscription();
     subscription.payer_email = email;
@@ -53,7 +53,7 @@ export const createSubscription = async (req: Request, res: Response) => {
   }
 };
 
-export const susbscriptionDbUpdate = async (req: Request, res: Response) => {
+export const subscriptionDbUpdate = async (req: Request) => {
   try {
 
     const preapprovalId = req.body.data.id;
@@ -77,8 +77,7 @@ export const susbscriptionDbUpdate = async (req: Request, res: Response) => {
       await subscriptionRepo.save(subscriptionRecord);
 
     }
-    res.sendStatus(200);
   } catch (error) {
-    handleHttpError(res, error);
+    console.error("susbscriptionDbUpdate error general:", error);
   }
 };
