@@ -145,30 +145,29 @@ ALTER TYPE pet_sex_enum_new RENAME TO pet_sex_enum;
     await queryRunner.query(`
       DO $$
       BEGIN
-        -- 1) Si no existe columna postType, créala como text (temporal)
+        -- 1) Si no existe postType, crearla temporalmente como text
         IF NOT EXISTS (
-          SELECT 1
-          FROM information_schema.columns
+          SELECT 1 FROM information_schema.columns
           WHERE table_name='pet' AND column_name='postType'
         ) THEN
           ALTER TABLE pet ADD COLUMN "postType" text;
         END IF;
       
-        -- 2) Si existe la columna antigua "status", migrar sus valores a postType y luego dropear status
+        -- 2) Si existe la columna antigua "status", migrar sus valores a postType (casteando status::text)
         IF EXISTS (
-          SELECT 1
-          FROM information_schema.columns
+          SELECT 1 FROM information_schema.columns
           WHERE table_name='pet' AND column_name='status'
         ) THEN
-          -- Copiar status a postType (si postType vacía)
+          -- Copiar status a postType sólo donde postType esté vacío
           UPDATE pet
-          SET "postType" = COALESCE("postType", "status")
+          SET "postType" = COALESCE("postType", ("status")::text)
           WHERE ("postType" IS NULL OR "postType" = '') AND ("status" IS NOT NULL);
-          -- opcional: dropear la columna status
-          ALTER TABLE pet DROP COLUMN IF EXISTS "status";
+      
+          -- Opcional: no dropear status todavía para chequeo. Si querés dropear, descomenta la siguiente línea:
+          -- ALTER TABLE pet DROP COLUMN IF EXISTS "status";
         END IF;
       
-        -- 3) Hacer mapping de valores en español a inglés (si hubiera)
+        -- 3) Mapping español -> inglés (si aplica)
         UPDATE pet
         SET "postType" = CASE
           WHEN "postType" = 'buscado' THEN 'wanted'
@@ -178,27 +177,24 @@ ALTER TYPE pet_sex_enum_new RENAME TO pet_sex_enum;
         END
         WHERE "postType" IS NOT NULL;
       
-        -- 4) Asegurar que postType no esté vacío; establecer default 'in_adoption' para NULLs
+        -- 4) Rellenar NULLs/empties con default textual
         UPDATE pet
         SET "postType" = 'in_adoption'
         WHERE "postType" IS NULL OR "postType" = '';
       
-        -- 5) Crear el tipo ENUM nuevo si no existe
+        -- 5) Crear enum si no existe
         IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'pet_posttype_enum') THEN
           CREATE TYPE pet_posttype_enum AS ENUM ('wanted','abandoned','in_adoption');
         END IF;
       
-        -- 6) Convertir columna postType a enum (usando el texto actual, se asume que ya fue mapeado)
-        PERFORM 1;
+        -- 6) Convertir columna postType a enum de forma segura
         BEGIN
-          -- Intentar convertir; si falla la conversión (valores no compatibles) la excepción hará rollback del DO block,
-          -- pero la migración principal rodeará con su propia transacción y fallará -- en ese caso inspecciona valores no esperados.
           ALTER TABLE pet
             ALTER COLUMN "postType" TYPE pet_posttype_enum USING "postType"::text::pet_posttype_enum;
           ALTER TABLE pet
             ALTER COLUMN "postType" SET DEFAULT 'in_adoption'::pet_posttype_enum;
         EXCEPTION WHEN others THEN
-          RAISE NOTICE 'Could not convert postType to enum - check values before retrying';
+          RAISE NOTICE 'Could not convert postType to enum - inspect values with SELECT DISTINCT "postType" FROM pet;';
           RAISE;
         END;
       END
