@@ -2,7 +2,29 @@ import { MigrationInterface, QueryRunner } from "typeorm";
 
 export class New1760916387338 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
-    // 1) Agregar columnas nuevas como NULLABLE / con default seguro (videos como text[])
+    await queryRunner.query(`
+      ALTER TABLE pet
+        ADD COLUMN IF NOT EXISTS images text[];
+    `);
+
+    await queryRunner.query(`
+      DO $$
+      BEGIN
+        IF EXISTS (
+          SELECT 1
+          FROM information_schema.columns
+          WHERE table_name = 'pet' AND column_name = 'img'
+        ) THEN
+          UPDATE pet
+          SET images = ARRAY[img]::text[]
+          WHERE images IS NULL OR array_length(images, 1) IS NULL;
+
+          ALTER TABLE pet DROP COLUMN IF EXISTS img;
+        END IF;
+      END
+      $$;
+    `);
+
     await queryRunner.query(`
       ALTER TABLE pet
         ADD COLUMN IF NOT EXISTS street text,
@@ -15,14 +37,12 @@ export class New1760916387338 implements MigrationInterface {
         ADD COLUMN IF NOT EXISTS "adopterId" uuid;
     `);
 
-    // 1.1) Asegurar videos no nulo (por si alguna fila quedó con NULL)
     await queryRunner.query(`
       UPDATE pet
       SET videos = ARRAY[]::text[]
       WHERE videos IS NULL;
     `);
 
-    // 2) Asegurar images: si es NULL o no es array o tiene longitud distinta de 3, reemplazar por placeholders (text[])
     await queryRunner.query(`
       UPDATE pet
       SET images = ARRAY['placeholder-1','placeholder-2','placeholder-3']::text[]
@@ -31,14 +51,12 @@ export class New1760916387338 implements MigrationInterface {
         OR array_length(images, 1) != 3;
     `);
 
-    // 2.1) Establecer DEFAULT y NOT NULL para images
     await queryRunner.query(`
       ALTER TABLE pet
       ALTER COLUMN images SET DEFAULT ARRAY['placeholder-1','placeholder-2','placeholder-3']::text[],
       ALTER COLUMN images SET NOT NULL;
     `);
 
-    // 2.2) Añadir CHECK para images = 3 elementos (en array)
     await queryRunner.query(`
         DO $$
         BEGIN
@@ -54,7 +72,6 @@ export class New1760916387338 implements MigrationInterface {
         $$;
       `);
 
-    // 3) Rellenar street/city existentes si faltan y hacerlos NOT NULL
     await queryRunner.query(`
       UPDATE pet
       SET street = coalesce(street, 'Not indicated'),
@@ -68,7 +85,6 @@ export class New1760916387338 implements MigrationInterface {
       ALTER COLUMN city SET NOT NULL;
     `);
 
-    // 4) Recasteos de valores existentes (español -> inglés)
     await queryRunner.query(`
         ALTER TABLE pet ALTER COLUMN size TYPE text USING size::text;
   UPDATE pet
@@ -126,62 +142,101 @@ DROP TYPE IF EXISTS pet_sex_enum;
 ALTER TYPE pet_sex_enum_new RENAME TO pet_sex_enum;
     `);
 
-    // Recasteo de postType y caseStatus (solo actualizar valores existentes)
     await queryRunner.query(`
+      DO $$
+      BEGIN
+        -- 1) Si no existe postType, crearla temporalmente como text
+        IF NOT EXISTS (
+          SELECT 1 FROM information_schema.columns
+          WHERE table_name='pet' AND column_name='postType'
+        ) THEN
+          ALTER TABLE pet ADD COLUMN "postType" text;
+        END IF;
+      
+        -- 2) Si existe la columna antigua "status", migrar sus valores a postType (casteando status::text)
+        IF EXISTS (
+          SELECT 1 FROM information_schema.columns
+          WHERE table_name='pet' AND column_name='status'
+        ) THEN
+          -- Copiar status a postType sólo donde postType esté vacío
+          UPDATE pet
+          SET "postType" = COALESCE("postType", ("status")::text)
+          WHERE ("postType" IS NULL OR "postType" = '') AND ("status" IS NOT NULL);
+      
+          -- Opcional: no dropear status todavía para chequeo. Si querés dropear, descomenta la siguiente línea:
+          -- ALTER TABLE pet DROP COLUMN IF EXISTS "status";
+        END IF;
+      
+        -- 3) Mapping español -> inglés (si aplica)
+        UPDATE pet
+  SET "postType" = CASE
+    WHEN LOWER("postType"::text) = 'perdido' THEN 'wanted'
+    WHEN LOWER("postType"::text) = 'buscado' THEN 'wanted'
+    WHEN LOWER("postType"::text) = 'encontrado' THEN 'abandoned'
+    WHEN LOWER("postType"::text) = 'abandonado' THEN 'abandoned'
+    WHEN LOWER("postType"::text) = 'en_adopcion' THEN 'in_adoption'
+    WHEN LOWER("postType"::text) = 'adoptado' THEN 'in_adoption'
+    ELSE "postType"
+  END
+  WHERE "postType" IS NOT NULL;
+      
+        -- 4) Rellenar NULLs/empties con default textual
+        UPDATE pet
+        SET "postType" = 'in_adoption'
+        WHERE "postType" IS NULL OR "postType" = '';
+      
+        -- 5) Crear enum si no existe
+        IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'pet_posttype_enum') THEN
+          CREATE TYPE pet_posttype_enum AS ENUM ('wanted','abandoned','in_adoption');
+        END IF;
+      
+        -- 6) Convertir columna postType a enum de forma segura
+        BEGIN
+          ALTER TABLE pet
+            ALTER COLUMN "postType" TYPE pet_posttype_enum USING "postType"::text::pet_posttype_enum;
+          ALTER TABLE pet
+            ALTER COLUMN "postType" SET DEFAULT 'in_adoption'::pet_posttype_enum;
+        EXCEPTION WHEN others THEN
+          RAISE NOTICE 'Could not convert postType to enum - inspect values with SELECT DISTINCT "postType" FROM pet;';
+          RAISE;
+        END;
+      END
+      $$;
+      `);
 
-ALTER TABLE pet
-  ALTER COLUMN "postType" DROP DEFAULT;
-
-ALTER TABLE pet
-  ALTER COLUMN "postType" TYPE text USING "postType"::text;
-
-UPDATE pet
-SET "postType" = CASE
-  WHEN "postType" = 'buscado' THEN 'wanted'
-  WHEN "postType" = 'abandonado' THEN 'abandoned'
-  WHEN "postType" = 'en_adopcion' THEN 'in_adoption'
-  ELSE "postType"
-END;
-
-CREATE TYPE pet_posttype_enum_new AS ENUM ('wanted','abandoned','in_adoption');
-
-ALTER TABLE pet
-  ALTER COLUMN "postType" TYPE pet_posttype_enum_new USING "postType"::text::pet_posttype_enum_new;
-
-ALTER TABLE pet
-  ALTER COLUMN "postType" SET DEFAULT 'in_adoption'::pet_posttype_enum_new;
-
-DROP TYPE IF EXISTS pet_posttype_enum;
-ALTER TYPE pet_posttype_enum_new RENAME TO pet_posttype_enum;
-    `);
-
-    await queryRunner.query(`
-
-ALTER TABLE pet
-  ALTER COLUMN "caseStatus" DROP DEFAULT;
-
-ALTER TABLE pet
-  ALTER COLUMN "caseStatus" TYPE text USING "caseStatus"::text;
-
-UPDATE pet
-SET "caseStatus" = CASE
-        WHEN "caseStatus" = 'activo' THEN 'open'
-        WHEN "caseStatus" = 'resuelto' THEN 'resolved'
-        WHEN "caseStatus" = 'adoptado' THEN 'adopted'
-        ELSE "caseStatus"
-      END;
-
-CREATE TYPE pet_casestatus_enum_new AS ENUM ('open','resolved','adopted');
-
-ALTER TABLE pet
-  ALTER COLUMN "caseStatus" TYPE pet_casestatus_enum_new USING "caseStatus"::text::pet_casestatus_enum_new;
-
-ALTER TABLE pet
-  ALTER COLUMN "caseStatus" SET DEFAULT 'open'::pet_casestatus_enum_new;
-
-DROP TYPE IF EXISTS pet_casestatus_enum;
-ALTER TYPE pet_casestatus_enum_new RENAME TO pet_casestatus_enum;
-    `);
+      await queryRunner.query(`
+        DO $$
+        BEGIN
+          -- 1) Si no existe caseStatus, crearla temporalmente como text
+          IF NOT EXISTS (
+            SELECT 1 FROM information_schema.columns
+            WHERE table_name='pet' AND column_name='caseStatus'
+          ) THEN
+            ALTER TABLE pet ADD COLUMN "caseStatus" text;
+          END IF;
+        
+          -- 2) Setear 'open' para todos los registros (evita problemas con valores antiguos)
+          UPDATE pet
+          SET "caseStatus" = 'open';
+        
+          -- 3) Crear enum nuevo si no existe
+          IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'pet_casestatus_enum') THEN
+            CREATE TYPE pet_casestatus_enum AS ENUM ('open','resolved','adopted');
+          END IF;
+        
+          -- 4) Convertir columna caseStatus a enum (ahora todos los valores son 'open' así no falla)
+          BEGIN
+            ALTER TABLE pet
+              ALTER COLUMN "caseStatus" TYPE pet_casestatus_enum USING "caseStatus"::text::pet_casestatus_enum;
+            ALTER TABLE pet
+              ALTER COLUMN "caseStatus" SET DEFAULT 'open'::pet_casestatus_enum;
+          EXCEPTION WHEN others THEN
+            RAISE NOTICE 'Could not convert caseStatus to enum - inspect values with SELECT DISTINCT "caseStatus" FROM pet;';
+            RAISE;
+          END;
+        END
+        $$;
+        `);
 
     await queryRunner.query(`
         ALTER TABLE pet
@@ -190,7 +245,6 @@ ALTER TYPE pet_casestatus_enum_new RENAME TO pet_casestatus_enum;
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    // Revert only what this migration added; we don't touch postType/caseStatus
     await queryRunner.query(`
       ALTER TABLE pet
         DROP CONSTRAINT IF EXISTS pet_images_len,
