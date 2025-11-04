@@ -170,7 +170,9 @@ ALTER TYPE pet_sex_enum_new RENAME TO pet_sex_enum;
         -- 3) Mapping español -> inglés (si aplica)
         UPDATE pet
   SET "postType" = CASE
+    WHEN LOWER("postType"::text) = 'perdido' THEN 'wanted'
     WHEN LOWER("postType"::text) = 'buscado' THEN 'wanted'
+    WHEN LOWER("postType"::text) = 'encontrado' THEN 'abandoned'
     WHEN LOWER("postType"::text) = 'abandonado' THEN 'abandoned'
     WHEN LOWER("postType"::text) = 'en_adopcion' THEN 'in_adoption'
     WHEN LOWER("postType"::text) = 'adoptado' THEN 'in_adoption'
