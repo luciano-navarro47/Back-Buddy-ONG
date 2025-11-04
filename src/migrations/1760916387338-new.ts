@@ -204,33 +204,61 @@ ALTER TYPE pet_sex_enum_new RENAME TO pet_sex_enum;
       $$;
       `);
 
-    await queryRunner.query(`
-
-ALTER TABLE pet
-  ALTER COLUMN "caseStatus" DROP DEFAULT;
-
-ALTER TABLE pet
-  ALTER COLUMN "caseStatus" TYPE text USING "caseStatus"::text;
-
-UPDATE pet
-SET "caseStatus" = CASE
-        WHEN "caseStatus" = 'activo' THEN 'open'
-        WHEN "caseStatus" = 'resuelto' THEN 'resolved'
-        WHEN "caseStatus" = 'adoptado' THEN 'adopted'
-        ELSE "caseStatus"
-      END;
-
-CREATE TYPE pet_casestatus_enum_new AS ENUM ('open','resolved','adopted');
-
-ALTER TABLE pet
-  ALTER COLUMN "caseStatus" TYPE pet_casestatus_enum_new USING "caseStatus"::text::pet_casestatus_enum_new;
-
-ALTER TABLE pet
-  ALTER COLUMN "caseStatus" SET DEFAULT 'open'::pet_casestatus_enum_new;
-
-DROP TYPE IF EXISTS pet_casestatus_enum;
-ALTER TYPE pet_casestatus_enum_new RENAME TO pet_casestatus_enum;
-    `);
+      await queryRunner.query(`
+        DO $$
+        BEGIN
+          -- 1) Si no existe column caseStatus, crearla temporalmente como text
+          IF NOT EXISTS (
+            SELECT 1 FROM information_schema.columns
+            WHERE table_name='pet' AND column_name='caseStatus'
+          ) THEN
+            ALTER TABLE pet ADD COLUMN "caseStatus" text;
+          END IF;
+        
+          -- 2) Si existe columna antigua "status", copiar su valor (casteando a text) a caseStatus donde esté vacío
+          IF EXISTS (
+            SELECT 1 FROM information_schema.columns
+            WHERE table_name='pet' AND column_name='status'
+          ) THEN
+            UPDATE pet
+            SET "caseStatus" = COALESCE("caseStatus", ("status")::text)
+            WHERE ("caseStatus" IS NULL OR "caseStatus" = '') AND ("status" IS NOT NULL);
+        
+          END IF;
+        
+          -- 3) Hacer mapping español -> inglés (incluye 'adoptado' -> 'adopted')
+          UPDATE pet
+          SET "caseStatus" = CASE
+            WHEN LOWER("caseStatus"::text) = 'activo' THEN 'open'
+            WHEN LOWER("caseStatus"::text) = 'resuelto' THEN 'resolved'
+            WHEN LOWER("caseStatus"::text) = 'adoptado' THEN 'adopted'
+            ELSE "caseStatus"
+          END
+          WHERE "caseStatus" IS NOT NULL;
+        
+          -- 4) Rellenar nulos/empty con 'open' (default textual previo a convertir)
+          UPDATE pet
+          SET "caseStatus" = 'open'
+          WHERE "caseStatus" IS NULL OR "caseStatus" = '';
+        
+          -- 5) Crear enum nuevo si no existe
+          IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'pet_casestatus_enum') THEN
+            CREATE TYPE pet_casestatus_enum AS ENUM ('open','resolved','adopted');
+          END IF;
+        
+          -- 6) Convertir columna a enum (con manejo de excepciones)
+          BEGIN
+            ALTER TABLE pet
+              ALTER COLUMN "caseStatus" TYPE pet_casestatus_enum USING "caseStatus"::text::pet_casestatus_enum;
+            ALTER TABLE pet
+              ALTER COLUMN "caseStatus" SET DEFAULT 'open'::pet_casestatus_enum;
+          EXCEPTION WHEN others THEN
+            RAISE NOTICE 'Could not convert caseStatus to enum - inspect values with SELECT DISTINCT "caseStatus" FROM pet;';
+            RAISE;
+          END;
+        END
+        $$;
+        `);
 
     await queryRunner.query(`
         ALTER TABLE pet
