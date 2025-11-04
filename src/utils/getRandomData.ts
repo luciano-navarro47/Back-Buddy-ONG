@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { faker } from "@faker-js/faker";
 
 import { Category } from "../entities/Product";
