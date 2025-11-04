@@ -2,7 +2,27 @@ import { MigrationInterface, QueryRunner } from "typeorm";
 
 export class New1760916387338 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
-    // 1) Agregar columnas nuevas como NULLABLE / con default seguro (videos como text[])
+    await queryRunner.query(`
+      ALTER TABLE pet
+        ADD COLUMN IF NOT EXISTS images text[];
+    `);
+
+    await queryRunner.query(`
+      DO $$
+      BEGIN
+        IF EXISTS (
+          SELECT 1
+          FROM information_schema.columns
+          WHERE table_name = 'pet' AND column_name = 'img'
+        ) THEN
+          UPDATE pet
+          SET images = ARRAY[img]::text[]
+          WHERE images IS NULL OR array_length(images, 1) IS NULL;
+        END IF;
+      END
+      $$;
+    `);
+
     await queryRunner.query(`
       ALTER TABLE pet
         ADD COLUMN IF NOT EXISTS street text,
@@ -15,14 +35,12 @@ export class New1760916387338 implements MigrationInterface {
         ADD COLUMN IF NOT EXISTS "adopterId" uuid;
     `);
 
-    // 1.1) Asegurar videos no nulo (por si alguna fila quedó con NULL)
     await queryRunner.query(`
       UPDATE pet
       SET videos = ARRAY[]::text[]
       WHERE videos IS NULL;
     `);
 
-    // 2) Asegurar images: si es NULL o no es array o tiene longitud distinta de 3, reemplazar por placeholders (text[])
     await queryRunner.query(`
       UPDATE pet
       SET images = ARRAY['placeholder-1','placeholder-2','placeholder-3']::text[]
@@ -31,14 +49,12 @@ export class New1760916387338 implements MigrationInterface {
         OR array_length(images, 1) != 3;
     `);
 
-    // 2.1) Establecer DEFAULT y NOT NULL para images
     await queryRunner.query(`
       ALTER TABLE pet
       ALTER COLUMN images SET DEFAULT ARRAY['placeholder-1','placeholder-2','placeholder-3']::text[],
       ALTER COLUMN images SET NOT NULL;
     `);
 
-    // 2.2) Añadir CHECK para images = 3 elementos (en array)
     await queryRunner.query(`
         DO $$
         BEGIN
@@ -54,7 +70,6 @@ export class New1760916387338 implements MigrationInterface {
         $$;
       `);
 
-    // 3) Rellenar street/city existentes si faltan y hacerlos NOT NULL
     await queryRunner.query(`
       UPDATE pet
       SET street = coalesce(street, 'Not indicated'),
@@ -68,7 +83,6 @@ export class New1760916387338 implements MigrationInterface {
       ALTER COLUMN city SET NOT NULL;
     `);
 
-    // 4) Recasteos de valores existentes (español -> inglés)
     await queryRunner.query(`
         ALTER TABLE pet ALTER COLUMN size TYPE text USING size::text;
   UPDATE pet
@@ -126,7 +140,6 @@ DROP TYPE IF EXISTS pet_sex_enum;
 ALTER TYPE pet_sex_enum_new RENAME TO pet_sex_enum;
     `);
 
-    // Recasteo de postType y caseStatus (solo actualizar valores existentes)
     await queryRunner.query(`
 
 ALTER TABLE pet
@@ -190,7 +203,6 @@ ALTER TYPE pet_casestatus_enum_new RENAME TO pet_casestatus_enum;
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    // Revert only what this migration added; we don't touch postType/caseStatus
     await queryRunner.query(`
       ALTER TABLE pet
         DROP CONSTRAINT IF EXISTS pet_images_len,
