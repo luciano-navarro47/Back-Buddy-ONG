@@ -31,7 +31,15 @@ const AppDataSource = new DataSource({
       }),
   synchronize: !isProdEnv,
   ssl: isProdEnv ? ({ rejectUnauthorized: false } as any) : false,
-  connectTimeoutMS: 30000,
+
+  connectTimeoutMS: parseInt(process.env.DB_CONNECT_TIMEOUT_MS || "60000"),
+  extra: {
+    max: parseInt(process.env.PG_MAX_CLIENTS || "5"),
+    connectionTimeoutMillis: parseInt(
+      process.env.PG_CONN_TIMEOUT_MS || "20000"
+    ),
+  },
+
   entities: [
     Card,
     CardSubscription,
