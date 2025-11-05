@@ -1,0 +1,70 @@
+name: Release Build Docker & Deploy to Cloud Run (on tag)
+
+on:
+  push:
+    tags:
+      - "v*" # just runs when a tag that starts with v is pushed
+
+env:
+  DOCKER_IMAGE: docker.io/lucianonavarro47/back-buddy-ong00
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set TAG (from pushed tag)
+        id: set_tag
+        run: |
+          # extrae el nombre del tag (quita refs/tags/)
+          echo "tag=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          registry: docker.io
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push image to Docker Hub
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: true
+          tags: |
+            ${{ env.DOCKER_IMAGE }}:${{ steps.set_tag.outputs.tag }}
+            ${{ env.DOCKER_IMAGE }}:latest
+
+      # --- AUTENTICACIÓN EN GCP: usar google-github-actions/auth ---
+      - name: Authenticate to GCP
+        uses: google-github-actions/auth@v3
+        with:
+          # Si usás Service Account JSON:
+          credentials_json: "${{ secrets.GCP_SA_KEY }}"
+          # Alternativa mejor (recomendado): configurar Workload Identity Federation y usar workload_identity_provider + service_account
+          # workload_identity_provider: 'projects/NUM/locations/global/workloadIdentityPools/POOL/providers/PROVIDER'
+          # service_account: 'my-sa@PROJECT.iam.gserviceaccount.com'
+
+      - name: Install gcloud (setup)
+        uses: google-github-actions/setup-gcloud@v3
+        with:
+          project_id: ${{ secrets.GCP_PROJECT }}
+          # version: 'latest' # opcional
+
+      - name: Deploy to Cloud Run
+        run: |
+          gcloud run deploy ${{ secrets.CLOUD_RUN_SERVICE }} \
+            --image ${{ env.DOCKER_IMAGE }}:${{ steps.set_tag.outputs.tag }} \
+            --region ${{ secrets.GCP_REGION }} \
+            --platform managed \
+            --allow-unauthenticated \
+            --project ${{ secrets.GCP_PROJECT }}
