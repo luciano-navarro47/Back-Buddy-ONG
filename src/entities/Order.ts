@@ -32,7 +32,7 @@ export class Order extends BaseEntity {
     @Column("int", { default: 1 }) installments?: number;
     @Column("decimal", { default: 0 }) shipping_cost?: number;
     @Column("json", { nullable: true }) shipping_address?: string;
-    @Column("json", { nullable: true }) billing_address!: string;
+    @Column("json", { nullable: true }) billing_address?: string;
     @Column("json") raw_response: any;
     @CreateDateColumn() created_at!: Date;
     @UpdateDateColumn() updated_at!: Date;
