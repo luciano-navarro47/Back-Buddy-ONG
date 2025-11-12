@@ -10,6 +10,10 @@ dotenv.config();
 const isProdEnv = process.env.NODE_ENV === "production";
 const app = express();
 
+if (isProdEnv) {
+  app.set("trust proxy", 1);
+}
+
 app.use(cookieParser());
 
 app.use(
