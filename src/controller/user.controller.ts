@@ -1,4 +1,7 @@
 import { Request, Response } from "express";
+import { plainToInstance } from "class-transformer";
+import { validate } from "class-validator";
+import { CreateUserDTO } from "../dtos/user.dto";
 import { User, Status, Role } from "../entities/User";
 import { handleHttpError, NotFoundError } from "../utils/error.handler";
 import { encrypt, verify } from "../utils/bcrypt.handler";
@@ -6,25 +9,34 @@ import { sendEmail } from "../utils/sendEmail";
 import rateLimit from "express-rate-limit";
 import { In } from "typeorm";
 import { generateToken } from "../utils/jwt.utils";
-import { isValidEmail } from "../middlewares/validators/user.validator";
 
 export const createUser = async (req: Request, res: Response) => {
-  const { first_name, last_name, email, username, phone, password } = req.body;
   try {
-    const passwordHashed = await encrypt(password);
+    const dto = plainToInstance(CreateUserDTO, req.body);
+
+    const errors = await validate(dto);
+    if (errors.length > 0) {
+      const messages = errors.reduce<string[]>((acc, err) => {
+        if (err.constraints) acc.push(...Object.values(err.constraints));
+        return acc;
+      }, []);
+      return res.status(400).json({ message: "Validation failed", errors: messages });
+    }
+
+    const passwordHashed = await encrypt(dto.password);
 
     const newUser = new User();
-    newUser.first_name = first_name;
-    newUser.last_name = last_name;
-    newUser.email = email;
+    newUser.first_name = dto.first_name;
+    newUser.last_name = dto.last_name;
+    newUser.email = dto.email;
     newUser.password = passwordHashed;
-    newUser.username = username;
-    newUser.phone = phone;
+    newUser.username = dto.username;
+    newUser.phone = dto.phone;
     newUser.role = Role.USER;
     newUser.status = Status.ACTIVE;
 
     await newUser.save();
-    await sendEmail(email, first_name);
+    await sendEmail(dto.email, dto.first_name);
 
     const token: string = generateToken(newUser);
 

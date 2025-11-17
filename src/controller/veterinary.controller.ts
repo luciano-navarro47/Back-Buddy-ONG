@@ -1,34 +1,40 @@
 import { Request, Response } from "express";
 import { Veterinary } from "../entities/Veterinary";
+import { CreateVeterinaryDTO } from "../dtos/CreateVeterinary.dto";
+import { validate } from "class-validator";
+import { plainToInstance } from "class-transformer";
 
 export const createVeterinary = async (req: Request, res: Response) => {
-  const { name, description, email, image, phone, address, location } =
-    req.body;
   try {
-    const newVeterinary = new Veterinary();
-    newVeterinary.name = name;
-    newVeterinary.description = description;
-    newVeterinary.email = email;
-    newVeterinary.image = image;
-    newVeterinary.phone = phone;
-    newVeterinary.address = address;
-    newVeterinary.location = location;
+    // Transformar y validar datos de entrada
+    const dto = plainToInstance(CreateVeterinaryDTO, req.body);
+    const errors = await validate(dto);
 
+    if (errors.length > 0) {
+      return res.status(400).json({
+        message: "Errores de validación",
+        errors: errors.map(err => err.constraints),
+      });
+    }
+
+    const newVeterinary = Veterinary.create(Object.assign(new Veterinary(), dto));
     await newVeterinary.save();
 
-    res.status(200).send(newVeterinary);
+    return res.status(201).json(newVeterinary);
   } catch (error) {
+    console.error(error);
     if (error instanceof Error)
-      return res.status(400).json({ message: error.message });
+      return res.status(500).json({ message: error.message });
   }
 };
 
 export const getAllVeterinary = async (req: Request, res: Response) => {
   try {
-    const veterinary = await Veterinary.find();
-    res.status(200).send(veterinary);
+    const veterinaries = await Veterinary.find();
+    return res.status(200).json(veterinaries);
   } catch (error) {
-    res.status(400).send(error);
+    console.error(error);
+    return res.status(500).json({ message: "Error al obtener veterinarias" });
   }
 };
 
