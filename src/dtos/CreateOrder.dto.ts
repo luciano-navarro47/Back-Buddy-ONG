@@ -1,7 +1,7 @@
 import { IsEmail, IsEnum, IsInt, IsJSON, IsNumber, IsOptional, IsString, IsUUID, ValidateNested, } from "class-validator"
 import { Type } from "class-transformer";
 import { Status } from "../entities/Order";
-import { CreateOrderItemDTO } from "./OrderItem.dto";
+import { CreateOrderItemDTO } from "./CreateOrderItem.dto";
 
 export class CreateOrderDTO { 
     @IsEnum(Status) status!: Status;

@@ -8,6 +8,8 @@ import {
 import AppDataSource from "../config/data-source";
 import { In } from "typeorm";
 import { OrderItem } from "../entities/OrderItem";
+import { validateOrReject } from "class-validator";
+import { CreateProductDTO } from "../dtos/CreateProduct.dto";
 
 export const getAllProducts = async (req: Request, res: Response) => {
   try {
@@ -24,29 +26,14 @@ export const getAllProducts = async (req: Request, res: Response) => {
 };
 
 export const createProduct = async (req: Request, res: Response) => {
-  const { name, description, images, price, stock, category } = req.body;
   try {
-    if (
-      !name ||
-      price == null ||
-      !Array.isArray(images) ||
-      images.length === 0 ||
-      !stock ||
-      !category
-    ) {
-      throw new BadRequestError("Missing or invalid fields");
-    }
+    const dto = Object.assign(new CreateProductDTO(), req.body);
+    await validateOrReject(dto);
 
-    const newProduct = new Product();
-    newProduct.category = category;
-    newProduct.name = name;
-    newProduct.images = images;
-    newProduct.description = description;
-    newProduct.price = price;
-    newProduct.stock = stock;
-
+    const newProduct = Product.create(dto);
     await newProduct.save();
-    return res.status(201).send(newProduct);
+
+    return res.status(201).json(newProduct);
   } catch (error) {
     handleHttpError(res, error);
   }

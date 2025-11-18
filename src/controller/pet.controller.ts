@@ -1,11 +1,10 @@
 import { Request, Response } from "express";
+import { plainToInstance } from "class-transformer";
+import { validateOrReject } from "class-validator";
 import { Pet } from "../entities/Pet";
 import { User } from "../entities/User";
 import { NotFoundError, handleHttpError } from "../utils/error.handler";
-
-// TO DO: create a file and export here the Pet.dto class
-// TO DO: create a file and export here the Pet.dto class
-// TO DO: create a file and export here the Pet.dto class
+import { CreatePetDTO } from "../dtos/CreatePet.dto";
 
 export const getAllPets = async (req: Request, res: Response) => {
   try {
@@ -48,48 +47,27 @@ export const getPetsByUserId = async (req: Request, res: Response) => {
 };
 
 export const createPet = async (req: Request, res: Response) => {
-  const {
-    name,
-    size,
-    specie,
-    age,
-    images,
-    videos,
-    detail,
-    sex,
-    caseStatus,
-    postType,
-    city,
-    street,
-    number,
-    userId,
-  } = req.body;
-
   try {
-    const searchUser = await User.find({
-      where: [{ id: userId }],
+    const petDto = plainToInstance(CreatePetDTO, req.body);
+    await validateOrReject(petDto);
+
+    const user = await User.findOne({ where: { id: petDto.userId } });
+    if (!user) throw new NotFoundError("User not found");
+
+    const newPet = Pet.create({
+      ...petDto,
+      user,
     });
 
-    const newPet = new Pet();
-    newPet.name = name;
-    newPet.size = size;
-    newPet.specie = specie;
-    newPet.age = age;
-    newPet.images = images;
-    newPet.street = street;
-    newPet.city = city;
-    newPet.number = number;
-    newPet.videos = videos;
-    newPet.postType = postType;
-    newPet.caseStatus = caseStatus;
-    newPet.detail = detail;
-    newPet.sex = sex;
-    newPet.user = searchUser[0];
-
     await newPet.save();
-
-    return res.status(200).send(newPet);
+    res.status(201).send(newPet);
   } catch (error) {
+    if (Array.isArray(error)) {
+      return res.status(400).json({
+        message: "Validation failed",
+        errors: error.map((e) => Object.values(e.constraints)).flat(),
+      });
+    }
     handleHttpError(res, error);
   }
 };

@@ -53,7 +53,7 @@ export const veterinaryValidator = [
 	check("address")
 		.exists()
 		.notEmpty()
-		.isLength({ min: 5, max: 40 }),
+		.isLength({ min: 5, max: 100 }),
 		// .custom(isValidVeterinaryAddress),
 
 	(req: Request, res: Response, next: NextFunction) => {
